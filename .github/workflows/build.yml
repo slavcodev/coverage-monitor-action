@@ -1,5 +1,15 @@
 name: build
-on: [pull_request]
+on:
+  pull_request:
+    branches-ignore:
+      - master
+    paths:
+      - '**.js'
+  push:
+    branches:
+      - master
+    paths:
+      - '**.js'
 
 jobs:
   build:
@@ -28,6 +38,7 @@ jobs:
 
       - name: Monitor coverage
         id: coverage-monitor
+        if: {{ github.event_name == 'pull_request' }}
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
