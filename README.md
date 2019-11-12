@@ -10,6 +10,61 @@
 
 [link-github]: https://github.com/slavcodev/coverage-monitor-action
 [link-license]: LICENSE
+[link-contributing]: .github/CONTRIBUTING.md
 
 A GitHub Action that monitor coverage.
 
+## Usage
+
+### Pre-requisites
+
+Create a workflow .yml file in your repositories .github/workflows directory.
+The action works only with `pull_request` event.
+
+### Inputs
+
+- `github_token` - The GITHUB_TOKEN secret.
+- `clover_file` - Path to Clover XML file.
+- `check` - Whether check the coverage thresholds.
+- `comment` - Whether comment the coverage report.
+- `threshold_alert` - Mark the build as unstable when coverage is less than this threshold.
+- `threshold_warning` - Warning when coverage is less than this threshold.
+- `status_context` - A string label to differentiate this status from the status of other systems.
+
+### Example workflow 
+
+~~~yaml
+name: Tests
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+
+      - name: Test
+        run: npm test
+
+      - name: Monitor coverage
+        uses: slavcodev/coverage-monitor-action@v1.0.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clover_file: "logs/clover.xml"
+          threshold_alert: 10
+          threshold_warning: 50
+~~~
+
+## Demo
+
+See [Pull Request #1](#1)
+
+## Contributing
+
+We would love for you to contribute, pull requests are welcome!
+Please see the [CONTRIBUTING.md][link-contributing] for more information.
+
+
+## License
+
+[MIT License][link-license]
