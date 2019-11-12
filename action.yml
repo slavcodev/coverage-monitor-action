@@ -2,7 +2,7 @@ name: 'Coverage monitor'
 description: 'A GitHub Action that monitor coverage.'
 branding:
   icon: "check"
-  color: "black"
+  color: "green"
 inputs:
   github_token:
     description: "The GITHUB_TOKEN secret."
