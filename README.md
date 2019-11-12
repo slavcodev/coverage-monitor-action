@@ -57,7 +57,7 @@ jobs:
 
 ## Demo
 
-See [Pull Request #1](#1)
+See [Pull Request #1](https://github.com/slavcodev/coverage-monitor-action/pull/1)
 
 ## Contributing
 
