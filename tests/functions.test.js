@@ -95,4 +95,60 @@ describe('functions', () => {
       context: statusContext,
     });
   });
+
+  it('generate badge URL', async () => {
+    expect.hasAssertions();
+
+    const metric = {
+      lines: { rate: 9.4 },
+      level: 'green',
+    };
+
+    expect(parser.generateBadgeUrl(metric)).toStrictEqual('https://img.shields.io/static/v1?label=coverage&message=9%&color=green');
+  });
+
+  it('generate emoji', async () => {
+    expect.hasAssertions();
+    expect(parser.generateEmoji({ lines: { rate: 100 } })).toStrictEqual(' 🎉');
+    expect(parser.generateEmoji({ lines: { rate: 99.99 } })).toStrictEqual('');
+  });
+
+  it('generate table', async () => {
+    expect.hasAssertions();
+
+    const metric = {
+      statements: {
+        total: 10,
+        covered: 1,
+        rate: 10,
+      },
+      lines: {
+        total: 10,
+        covered: 2,
+        rate: 20,
+      },
+      methods: {
+        total: 10,
+        covered: 3,
+        rate: 30,
+      },
+      branches: {
+        total: 10,
+        covered: 4,
+        rate: 40,
+      },
+      level: 'yellow',
+    };
+
+    const expectedString = `
+## Coverage Report
+
+|  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |
+| :-- | --: |
+| Statements: | 20% ( 2 / 10 ) |
+| Methods: | 30% ( 3 / 10 ) |
+`;
+
+    expect(parser.generateTable(metric)).toStrictEqual(expectedString);
+  });
 });
