@@ -8,7 +8,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v1
 
+      - uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
       - name: Install
+        if: steps.cache.outputs.cache-hit != 'true'
         run: npm install
 
       - name: Test
