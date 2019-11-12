@@ -1,0 +1,7 @@
+#!/bin/sh
+
+change=$(git diff --name-only | grep "src.*\.js")
+
+if [[ -n ${change} ]]; then
+  npm run build
+fi

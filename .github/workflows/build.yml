@@ -1,0 +1,34 @@
+name: build
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - uses: actions/cache@v1
+        id: cache
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install
+        # if: steps.cache.outputs.cache-hit != 'true'
+        run: npm install
+
+      - name: Test
+        run: npm test
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Monitor coverage
+        id: coverage-monitor
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clover_file: "logs/clover.xml"

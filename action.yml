@@ -1,0 +1,32 @@
+name: 'Coverage monitor'
+description: 'A GitHub Action that monitor coverage.'
+inputs:
+  github_token:
+    description: "The GITHUB_TOKEN secret."
+    required: true
+  clover_file:
+    description: "Path to Clover XML file."
+    required: true
+  check:
+    description: "Whether check the coverage thresholds."
+    required: true
+    default: true
+  comment:
+    description: "Whether comment the coverage report."
+    required: true
+    default: true
+  threshold_alert:
+    description: "Mark the build as unstable when coverage is less than this threshold."
+    required: false
+    default: 50
+  threshold_warning:
+    description: "Warning when coverage is less than this threshold."
+    required: false
+    default: 90
+  status_context:
+    description: "A string label to differentiate this status from the status of other systems."
+    required: false
+    default: 'Coverage Report'
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
