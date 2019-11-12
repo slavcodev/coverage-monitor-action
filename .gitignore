@@ -1,0 +1,7 @@
+# Setting up GIt to ignore the indexing of these files and directories.
+# Keep this file clean, add only files and folders directly pertinent to the project.
+# DO NOT add the local environment files, like OS temp files or IDE files.
+# For local environment files use global ignore.
+
+# Node modules
+/node_modules/
