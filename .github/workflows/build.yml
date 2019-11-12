@@ -38,7 +38,7 @@ jobs:
 
       - name: Monitor coverage
         id: coverage-monitor
-        if: {{ github.event_name == 'pull_request' }}
+        if: github.event_name == 'pull_request'
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
