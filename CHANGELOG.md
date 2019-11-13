@@ -18,6 +18,11 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
-## [1.0.0] yyyy-mm-dd
+## [1.0.1] 2019-11-11
+### Fixed
+
+- Fixed the inputs types at which the application did not work correctly, especially for booleans.
+
+## [1.0.0] 2019-11-11
 
 Initial release.
