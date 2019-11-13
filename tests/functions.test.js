@@ -10,7 +10,7 @@ describe('functions', () => {
     await expect(parser.readFile(filename)).rejects.toThrow('no such file or directory');
   });
 
-  it('parse XML to JS', async () => {
+  it('parses XML to JS', async () => {
     expect.hasAssertions();
 
     const filename = path.join(__dirname, '/clover.xml');
@@ -40,7 +40,7 @@ describe('functions', () => {
     expect(metric.level).toStrictEqual('yellow'); // 79.59 < 90
   });
 
-  it('calculate level', async () => {
+  it('calculates level', async () => {
     expect.hasAssertions();
 
     [
@@ -56,7 +56,7 @@ describe('functions', () => {
     );
   });
 
-  it('generate status', async () => {
+  it('generates status', async () => {
     expect.hasAssertions();
     const targetUrl = 'https://example.com';
     const statusContext = 'coverage';
@@ -96,7 +96,7 @@ describe('functions', () => {
     });
   });
 
-  it('generate badge URL', async () => {
+  it('generates badge URL', async () => {
     expect.hasAssertions();
 
     const metric = {
@@ -107,13 +107,13 @@ describe('functions', () => {
     expect(parser.generateBadgeUrl(metric)).toStrictEqual('https://img.shields.io/static/v1?label=coverage&message=9%&color=green');
   });
 
-  it('generate emoji', async () => {
+  it('generates emoji', async () => {
     expect.hasAssertions();
     expect(parser.generateEmoji({ lines: { rate: 100 } })).toStrictEqual(' 🎉');
     expect(parser.generateEmoji({ lines: { rate: 99.99 } })).toStrictEqual('');
   });
 
-  it('generate table', async () => {
+  it('generates table', async () => {
     expect.hasAssertions();
 
     const metric = {
@@ -150,5 +150,66 @@ describe('functions', () => {
 `;
 
     expect(parser.generateTable(metric)).toStrictEqual(expectedString);
+  });
+
+  function createConfigReader(inputs) {
+    return {
+      getInput(name) {
+        return inputs[
+          name.split('_').reduce(
+            (carry, item) => (carry === null ? item : `${carry}${item[0].toUpperCase() + item.slice(1)}`),
+            null,
+          )
+        ];
+      },
+    };
+  }
+
+  it('loads config', async () => {
+    expect.hasAssertions();
+
+    const inputs = {
+      comment: true,
+      check: false,
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: 10,
+      thresholdWarning: 20,
+      statusContext: 'Coverage',
+    };
+
+    const reader = createConfigReader(inputs);
+    const config = parser.loadConfig(reader);
+
+    expect(config).toStrictEqual(inputs);
+  });
+
+  it('coerces config values', async () => {
+    expect.hasAssertions();
+
+    const inputs = {
+      comment: 'true',
+      check: 'false',
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: '10',
+      thresholdWarning: '20',
+      statusContext: 'Coverage',
+    };
+
+    const expected = {
+      comment: true,
+      check: false,
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: 10,
+      thresholdWarning: 20,
+      statusContext: 'Coverage',
+    };
+
+    const reader = createConfigReader(inputs);
+    const config = parser.loadConfig(reader);
+
+    expect(config).toStrictEqual(expected);
   });
 });
