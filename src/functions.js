@@ -126,6 +126,36 @@ function generateStatus({
   };
 }
 
+function toBool(value) {
+  return typeof value === 'boolean'
+    ? value
+    : value === 'true';
+}
+
+function toInt(value) {
+  return value * 1;
+}
+
+function loadConfig({ getInput }) {
+  const comment = toBool(getInput('comment'));
+  const check = toBool(getInput('check'));
+  const githubToken = getInput('github_token');
+  const cloverFile = getInput('clover_file');
+  const thresholdAlert = toInt(getInput('threshold_alert'));
+  const thresholdWarning = toInt(getInput('threshold_warning'));
+  const statusContext = getInput('status_context');
+
+  return {
+    comment,
+    check,
+    githubToken,
+    cloverFile,
+    thresholdAlert,
+    thresholdWarning,
+    statusContext,
+  };
+}
+
 module.exports = {
   readFile,
   readMetric,
@@ -134,4 +164,5 @@ module.exports = {
   generateTable,
   calculateLevel,
   generateStatus,
+  loadConfig,
 };
