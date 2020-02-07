@@ -51,11 +51,25 @@ async function run() {
 
   if (comment) {
     const message = generateTable(metric);
-    client.issues.createComment({
+
+    const existingComments = await client.issues.listComments({
       ...context.repo,
       issue_number: prNumber,
-      body: message,
     });
+
+    if (existingComments.length > 0) {
+      client.issues.updateComment({
+        ...context.repo,
+        comment_id: existingComments[0],
+        body: message,
+      });
+    } else {
+      client.issues.createComment({
+        ...context.repo,
+        issue_number: prNumber,
+        body: message,
+      });
+    }
   }
 }
 
