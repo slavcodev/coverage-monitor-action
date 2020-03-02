@@ -44,4 +44,4 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           clover_file: "logs/clover.xml"
           comment_mode: "upsert"
-          comment_context: "My coverage"
+          comment_context: "Coverage"
