@@ -15767,6 +15767,7 @@ const {
   generateStatus,
   generateTable,
   loadConfig,
+  getCommentHeader,
 } = __webpack_require__(858);
 const {
   createStatus,
@@ -15843,6 +15844,7 @@ async function run() {
             client,
             context,
             prNumber,
+            commentHeader: getCommentHeader({ commentContext }),
           }),
         });
 
@@ -15858,6 +15860,8 @@ async function run() {
             client,
             context,
             prNumber,
+            commentContext,
+            commentHeader: getCommentHeader({ commentContext }),
           }),
         });
     }
@@ -17966,13 +17970,14 @@ const listComments = async ({
   client,
   context,
   prNumber,
+  commentHeader,
 }) => {
   const { data: existingComments } = await client.issues.listComments({
     ...context.repo,
     issue_number: prNumber,
   });
 
-  return existingComments;
+  return existingComments.filter(({ body }) => body.startsWith(commentHeader));
 };
 
 const insertComment = ({
@@ -20039,11 +20044,15 @@ function generateInfo({ rate, total, covered }) {
   return `${rate}% ( ${covered} / ${total} )`;
 }
 
+function getCommentHeader({ commentContext }) {
+  return `<!-- coverage-monitor-action: ${commentContext} -->`;
+}
+
 function generateTable({
   metric,
   commentContext,
 }) {
-  return `
+  return `${getCommentHeader({ commentContext })}
 ## ${commentContext}${generateEmoji(metric)}
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
@@ -20131,6 +20140,7 @@ module.exports = {
   calculateLevel,
   generateStatus,
   loadConfig,
+  getCommentHeader,
 };
 
 
