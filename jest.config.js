@@ -3,5 +3,6 @@ module.exports = {
   verbose: true,
   collectCoverage: true,
   coverageDirectory: 'logs',
-  coverageReporters: ['clover', 'html'],
+  coveragePathIgnorePatterns: ['tests'],
+  coverageReporters: ['clover', 'html', 'json', 'text'],
 };
