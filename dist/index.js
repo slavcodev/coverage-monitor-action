@@ -15768,6 +15768,13 @@ const {
   generateTable,
   loadConfig,
 } = __webpack_require__(858);
+const {
+  createStatus,
+  listComments,
+  insertComment,
+  upsertComment,
+  replaceComment,
+} = __webpack_require__(790);
 
 async function run() {
   if (!github.context.payload.pull_request) {
@@ -15783,6 +15790,7 @@ async function run() {
     thresholdWarning,
     statusContext,
     commentContext,
+    commentMode,
   } = loadConfig(core);
 
   if (!check && !comment) {
@@ -15804,20 +15812,55 @@ async function run() {
   const metric = readMetric(coverage, { thresholdAlert, thresholdWarning });
 
   if (check) {
-    client.repos.createStatus({
-      ...context.repo,
+    createStatus({
+      client,
+      context,
       sha,
-      ...generateStatus({ targetUrl: prUrl, metric, statusContext }),
+      status: generateStatus({ targetUrl: prUrl, metric, statusContext }),
     });
   }
 
   if (comment) {
     const message = generateTable({ metric, commentContext });
-    client.issues.createComment({
-      ...context.repo,
-      issue_number: prNumber,
-      body: message,
-    });
+
+    switch (commentMode) {
+      case 'insert':
+        await insertComment({
+          client,
+          context,
+          prNumber,
+          body: message,
+        });
+
+        break;
+      case 'upsert':
+        await upsertComment({
+          client,
+          context,
+          prNumber,
+          body: message,
+          existingComments: await listComments({
+            client,
+            context,
+            prNumber,
+          }),
+        });
+
+        break;
+      case 'replace':
+      default:
+        await replaceComment({
+          client,
+          context,
+          prNumber,
+          body: message,
+          existingComments: await listComments({
+            client,
+            context,
+            prNumber,
+          }),
+        });
+    }
   }
 }
 
@@ -17903,7 +17946,139 @@ module.exports = keysShim;
 /* 787 */,
 /* 788 */,
 /* 789 */,
-/* 790 */,
+/* 790 */
+/***/ (function(module) {
+
+const createStatus = ({
+  client,
+  context,
+  sha,
+  status,
+}) => {
+  client.repos.createStatus({
+    ...context.repo,
+    sha,
+    ...status,
+  });
+};
+
+const listComments = async ({
+  client,
+  context,
+  prNumber,
+}) => {
+  const { data: existingComments } = await client.issues.listComments({
+    ...context.repo,
+    issue_number: prNumber,
+  });
+
+  return existingComments;
+};
+
+const insertComment = ({
+  client,
+  context,
+  prNumber,
+  body,
+}) => {
+  client.issues.createComment({
+    ...context.repo,
+    issue_number: prNumber,
+    body,
+  });
+};
+
+const updateComment = ({
+  client,
+  context,
+  body,
+  commentId,
+}) => {
+  client.issues.updateComment({
+    ...context.repo,
+    comment_id: commentId,
+    body,
+  });
+};
+
+const deleteComments = ({
+  client,
+  context,
+  comments,
+}) => {
+  comments.forEach(({ id }) => {
+    client.issues.deleteComment({
+      ...context.repo,
+      comment_id: id,
+    });
+  });
+};
+
+const upsertComment = ({
+  client,
+  context,
+  prNumber,
+  body,
+  existingComments,
+}) => {
+  const last = existingComments.pop();
+
+  deleteComments({
+    client,
+    context,
+    comments: existingComments,
+  });
+
+  if (last) {
+    updateComment({
+      client,
+      context,
+      body,
+      commentId: last.id,
+    });
+  } else {
+    insertComment({
+      client,
+      context,
+      prNumber,
+      body,
+    });
+  }
+};
+
+const replaceComment = ({
+  client,
+  context,
+  prNumber,
+  body,
+  existingComments,
+}) => {
+  deleteComments({
+    client,
+    context,
+    comments: existingComments,
+  });
+
+  insertComment({
+    client,
+    context,
+    prNumber,
+    body,
+  });
+};
+
+module.exports = {
+  createStatus,
+  listComments,
+  insertComment,
+  updateComment,
+  deleteComments,
+  upsertComment,
+  replaceComment,
+};
+
+
+/***/ }),
 /* 791 */
 /***/ (function(__unusedmodule, exports) {
 
@@ -19928,6 +20103,11 @@ function loadConfig({ getInput }) {
   const thresholdWarning = toInt(getInput('threshold_warning'));
   const statusContext = getInput('status_context');
   const commentContext = getInput('comment_context');
+  let commentMode = getInput('comment_mode');
+
+  if (!['replace', 'upsert', 'insert'].includes(commentMode)) {
+    commentMode = 'replace';
+  }
 
   return {
     comment,
@@ -19938,6 +20118,7 @@ function loadConfig({ getInput }) {
     thresholdWarning,
     statusContext,
     commentContext,
+    commentMode,
   };
 }
 
