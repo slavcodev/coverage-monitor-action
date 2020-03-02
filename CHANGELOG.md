@@ -18,6 +18,8 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.1.0] 2020-03-02
+
 ### Added
 
 - Added `comment_context` string property, the label posted in comment to differentiate the comment posted by each action.
