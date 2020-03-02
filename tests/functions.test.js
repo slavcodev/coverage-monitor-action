@@ -113,6 +113,12 @@ describe('functions', () => {
     expect(parser.generateEmoji({ lines: { rate: 99.99 } })).toStrictEqual('');
   });
 
+  it('generates header', async () => {
+    expect.hasAssertions();
+
+    expect(parser.generateCommentHeader({ commentContext: 'foobar' })).toStrictEqual(`<!-- coverage-monitor-action: foobar -->`);
+  });
+
   it('generates table', async () => {
     expect.hasAssertions();
 
@@ -186,6 +192,32 @@ describe('functions', () => {
     expect(config).toStrictEqual(inputs);
   });
 
+  it('use defaults on loading config', async () => {
+    expect.hasAssertions();
+
+    const inputs = {
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+    };
+
+    const expected = {
+      comment: false,
+      check: false,
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: 90,
+      thresholdWarning: 50,
+      statusContext: 'Coverage Report',
+      commentContext: 'Coverage Report',
+      commentMode: 'replace',
+    };
+
+    const reader = createConfigReader(inputs);
+    const config = parser.loadConfig(reader);
+
+    expect(config).toStrictEqual(expected);
+  });
+
   it('coerces config values', async () => {
     expect.hasAssertions();
 
@@ -209,6 +241,33 @@ describe('functions', () => {
       thresholdAlert: 10,
       thresholdWarning: 20,
       statusContext: 'Coverage',
+      commentContext: 'Coverage Report',
+      commentMode: 'replace',
+    };
+
+    const reader = createConfigReader(inputs);
+    const config = parser.loadConfig(reader);
+
+    expect(config).toStrictEqual(expected);
+  });
+
+  it('use default comment mode if got unsupported value', async () => {
+    expect.hasAssertions();
+
+    const inputs = {
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      commentMode: 'foo',
+    };
+
+    const expected = {
+      comment: false,
+      check: false,
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: 90,
+      thresholdWarning: 50,
+      statusContext: 'Coverage Report',
       commentContext: 'Coverage Report',
       commentMode: 'replace',
     };

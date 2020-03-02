@@ -6,7 +6,7 @@ const {
   generateStatus,
   generateTable,
   loadConfig,
-  getCommentHeader,
+  generateCommentHeader,
 } = require('./functions');
 const {
   createStatus,
@@ -83,7 +83,7 @@ async function run() {
             client,
             context,
             prNumber,
-            commentHeader: getCommentHeader({ commentContext }),
+            commentHeader: generateCommentHeader({ commentContext }),
           }),
         });
 
@@ -100,7 +100,7 @@ async function run() {
             context,
             prNumber,
             commentContext,
-            commentHeader: getCommentHeader({ commentContext }),
+            commentHeader: generateCommentHeader({ commentContext }),
           }),
         });
     }
