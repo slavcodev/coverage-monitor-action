@@ -15834,7 +15834,7 @@ async function run() {
         });
 
         break;
-      case 'upsert':
+      case 'update':
         await upsertComment({
           client,
           context,
@@ -20114,7 +20114,7 @@ function loadConfig({ getInput }) {
   const commentContext = getInput('comment_context');
   let commentMode = getInput('comment_mode');
 
-  if (!['replace', 'upsert', 'insert'].includes(commentMode)) {
+  if (!['replace', 'update', 'insert'].includes(commentMode)) {
     commentMode = 'replace';
   }
 

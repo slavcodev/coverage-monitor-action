@@ -35,7 +35,7 @@ inputs:
     required: false
     default: 'Coverage Report'
   comment_mode:
-    description: "A mode for comments, supported: `replace` - remove existing add new, `upsert` - insert or update existing or `insert` - always insert new comment."
+    description: "A mode for comments, supported: `replace`, `update` or `insert`."
     required: false
     default: 'replace'
 runs:

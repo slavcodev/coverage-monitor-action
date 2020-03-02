@@ -73,7 +73,7 @@ async function run() {
         });
 
         break;
-      case 'upsert':
+      case 'update':
         await upsertComment({
           client,
           context,
