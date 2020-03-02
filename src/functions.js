@@ -148,6 +148,11 @@ function loadConfig({ getInput }) {
   const thresholdWarning = toInt(getInput('threshold_warning'));
   const statusContext = getInput('status_context');
   const commentContext = getInput('comment_context');
+  let commentMode = getInput('comment_mode');
+
+  if (!['replace', 'upsert', 'insert'].includes(commentMode)) {
+    commentMode = 'replace';
+  }
 
   return {
     comment,
@@ -158,6 +163,7 @@ function loadConfig({ getInput }) {
     thresholdWarning,
     statusContext,
     commentContext,
+    commentMode,
   };
 }
 

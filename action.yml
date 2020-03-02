@@ -34,6 +34,10 @@ inputs:
     description: "A string label to differentiate the comment posted by this action."
     required: false
     default: 'Coverage Report'
+  comment_mode:
+    description: "A mode for comments, supported: `replace` - remove existing add new, `upsert` - insert or update existing or `insert` - always insert new comment."
+    required: false
+    default: 'replace'
 runs:
   using: 'node12'
   main: 'dist/index.js'

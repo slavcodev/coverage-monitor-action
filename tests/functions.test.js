@@ -177,6 +177,7 @@ describe('functions', () => {
       thresholdWarning: 20,
       statusContext: 'Coverage',
       commentContext: 'Coverage Report',
+      commentMode: 'replace',
     };
 
     const reader = createConfigReader(inputs);
@@ -197,6 +198,7 @@ describe('functions', () => {
       thresholdWarning: '20',
       statusContext: 'Coverage',
       commentContext: 'Coverage Report',
+      commentMode: 'replace',
     };
 
     const expected = {
@@ -208,6 +210,7 @@ describe('functions', () => {
       thresholdWarning: 20,
       statusContext: 'Coverage',
       commentContext: 'Coverage Report',
+      commentMode: 'replace',
     };
 
     const reader = createConfigReader(inputs);
