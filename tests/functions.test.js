@@ -140,7 +140,7 @@ describe('functions', () => {
       level: 'yellow',
     };
 
-    const expectedString = `
+    const expectedString = `<!-- coverage-monitor-action: Coverage Report -->
 ## Coverage Report
 
 |  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |

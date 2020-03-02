@@ -15,13 +15,14 @@ const listComments = async ({
   client,
   context,
   prNumber,
+  commentHeader,
 }) => {
   const { data: existingComments } = await client.issues.listComments({
     ...context.repo,
     issue_number: prNumber,
   });
 
-  return existingComments;
+  return existingComments.filter(({ body }) => body.startsWith(commentHeader));
 };
 
 const insertComment = ({

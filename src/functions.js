@@ -84,11 +84,15 @@ function generateInfo({ rate, total, covered }) {
   return `${rate}% ( ${covered} / ${total} )`;
 }
 
+function getCommentHeader({ commentContext }) {
+  return `<!-- coverage-monitor-action: ${commentContext} -->`;
+}
+
 function generateTable({
   metric,
   commentContext,
 }) {
-  return `
+  return `${getCommentHeader({ commentContext })}
 ## ${commentContext}${generateEmoji(metric)}
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
@@ -176,4 +180,5 @@ module.exports = {
   calculateLevel,
   generateStatus,
   loadConfig,
+  getCommentHeader,
 };

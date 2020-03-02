@@ -6,6 +6,7 @@ const {
   generateStatus,
   generateTable,
   loadConfig,
+  getCommentHeader,
 } = require('./functions');
 const {
   createStatus,
@@ -82,6 +83,7 @@ async function run() {
             client,
             context,
             prNumber,
+            commentHeader: getCommentHeader({ commentContext }),
           }),
         });
 
@@ -97,6 +99,8 @@ async function run() {
             client,
             context,
             prNumber,
+            commentContext,
+            commentHeader: getCommentHeader({ commentContext }),
           }),
         });
     }
