@@ -12,22 +12,26 @@ inputs:
     required: true
   check:
     description: "Whether check the coverage thresholds."
-    required: true
-    default: true
+    required: false
+    default: 'true'
   comment:
     description: "Whether comment the coverage report."
-    required: true
-    default: true
+    required: false
+    default: 'true'
   threshold_alert:
     description: "Mark the build as unstable when coverage is less than this threshold."
     required: false
-    default: 50
+    default: '50'
   threshold_warning:
     description: "Warning when coverage is less than this threshold."
     required: false
-    default: 90
+    default: '90'
   status_context:
     description: "A string label to differentiate this status from the status of other systems."
+    required: false
+    default: 'Coverage Report'
+  comment_context:
+    description: "A string label to differentiate the comment posted by this action."
     required: false
     default: 'Coverage Report'
 runs:

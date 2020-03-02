@@ -149,7 +149,7 @@ describe('functions', () => {
 | Methods: | 30% ( 3 / 10 ) |
 `;
 
-    expect(parser.generateTable(metric)).toStrictEqual(expectedString);
+    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toStrictEqual(expectedString);
   });
 
   function createConfigReader(inputs) {
@@ -176,6 +176,7 @@ describe('functions', () => {
       thresholdAlert: 10,
       thresholdWarning: 20,
       statusContext: 'Coverage',
+      commentContext: 'Coverage Report',
     };
 
     const reader = createConfigReader(inputs);
@@ -195,6 +196,7 @@ describe('functions', () => {
       thresholdAlert: '10',
       thresholdWarning: '20',
       statusContext: 'Coverage',
+      commentContext: 'Coverage Report',
     };
 
     const expected = {
@@ -205,6 +207,7 @@ describe('functions', () => {
       thresholdAlert: 10,
       thresholdWarning: 20,
       statusContext: 'Coverage',
+      commentContext: 'Coverage Report',
     };
 
     const reader = createConfigReader(inputs);
