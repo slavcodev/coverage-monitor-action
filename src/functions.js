@@ -84,9 +84,12 @@ function generateInfo({ rate, total, covered }) {
   return `${rate}% ( ${covered} / ${total} )`;
 }
 
-function generateTable(metric) {
+function generateTable({
+  metric,
+  commentContext,
+}) {
   return `
-## Coverage Report${generateEmoji(metric)}
+## ${commentContext}${generateEmoji(metric)}
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
 | :-- | --: |
@@ -139,11 +142,12 @@ function toInt(value) {
 function loadConfig({ getInput }) {
   const comment = toBool(getInput('comment'));
   const check = toBool(getInput('check'));
-  const githubToken = getInput('github_token');
-  const cloverFile = getInput('clover_file');
+  const githubToken = getInput('github_token', { required: true });
+  const cloverFile = getInput('clover_file', { required: true });
   const thresholdAlert = toInt(getInput('threshold_alert'));
   const thresholdWarning = toInt(getInput('threshold_warning'));
   const statusContext = getInput('status_context');
+  const commentContext = getInput('comment_context');
 
   return {
     comment,
@@ -153,6 +157,7 @@ function loadConfig({ getInput }) {
     thresholdAlert,
     thresholdWarning,
     statusContext,
+    commentContext,
   };
 }
 

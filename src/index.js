@@ -21,6 +21,7 @@ async function run() {
     thresholdAlert,
     thresholdWarning,
     statusContext,
+    commentContext,
   } = loadConfig(core);
 
   if (!check && !comment) {
@@ -50,7 +51,7 @@ async function run() {
   }
 
   if (comment) {
-    const message = generateTable(metric);
+    const message = generateTable({ metric, commentContext });
     client.issues.createComment({
       ...context.repo,
       issue_number: prNumber,
