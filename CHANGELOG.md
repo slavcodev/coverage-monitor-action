@@ -21,6 +21,7 @@ _TBD_
 ### Added
 
 - Added `comment_context` string property, the label posted in comment to differentiate the comment posted by each action.
+- Added `comment_mode` property to control a behaviour for posting comments to a PR. 
 
 ## [1.0.1] 2019-11-11
 

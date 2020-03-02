@@ -84,11 +84,15 @@ function generateInfo({ rate, total, covered }) {
   return `${rate}% ( ${covered} / ${total} )`;
 }
 
+function generateCommentHeader({ commentContext }) {
+  return `<!-- coverage-monitor-action: ${commentContext} -->`;
+}
+
 function generateTable({
   metric,
   commentContext,
 }) {
-  return `
+  return `${generateCommentHeader({ commentContext })}
 ## ${commentContext}${generateEmoji(metric)}
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
@@ -144,10 +148,15 @@ function loadConfig({ getInput }) {
   const check = toBool(getInput('check'));
   const githubToken = getInput('github_token', { required: true });
   const cloverFile = getInput('clover_file', { required: true });
-  const thresholdAlert = toInt(getInput('threshold_alert'));
-  const thresholdWarning = toInt(getInput('threshold_warning'));
-  const statusContext = getInput('status_context');
-  const commentContext = getInput('comment_context');
+  const thresholdAlert = toInt(getInput('threshold_alert') || 90);
+  const thresholdWarning = toInt(getInput('threshold_warning') || 50);
+  const statusContext = getInput('status_context') || 'Coverage Report';
+  const commentContext = getInput('comment_context') || 'Coverage Report';
+  let commentMode = getInput('comment_mode');
+
+  if (!['replace', 'update', 'insert'].includes(commentMode)) {
+    commentMode = 'replace';
+  }
 
   return {
     comment,
@@ -158,6 +167,7 @@ function loadConfig({ getInput }) {
     thresholdWarning,
     statusContext,
     commentContext,
+    commentMode,
   };
 }
 
@@ -170,4 +180,5 @@ module.exports = {
   calculateLevel,
   generateStatus,
   loadConfig,
+  generateCommentHeader,
 };

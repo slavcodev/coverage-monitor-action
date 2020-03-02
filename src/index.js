@@ -6,7 +6,15 @@ const {
   generateStatus,
   generateTable,
   loadConfig,
+  generateCommentHeader,
 } = require('./functions');
+const {
+  createStatus,
+  listComments,
+  insertComment,
+  upsertComment,
+  replaceComment,
+} = require('./github');
 
 async function run() {
   if (!github.context.payload.pull_request) {
@@ -22,6 +30,7 @@ async function run() {
     thresholdWarning,
     statusContext,
     commentContext,
+    commentMode,
   } = loadConfig(core);
 
   if (!check && !comment) {
@@ -43,20 +52,58 @@ async function run() {
   const metric = readMetric(coverage, { thresholdAlert, thresholdWarning });
 
   if (check) {
-    client.repos.createStatus({
-      ...context.repo,
+    createStatus({
+      client,
+      context,
       sha,
-      ...generateStatus({ targetUrl: prUrl, metric, statusContext }),
+      status: generateStatus({ targetUrl: prUrl, metric, statusContext }),
     });
   }
 
   if (comment) {
     const message = generateTable({ metric, commentContext });
-    client.issues.createComment({
-      ...context.repo,
-      issue_number: prNumber,
-      body: message,
-    });
+
+    switch (commentMode) {
+      case 'insert':
+        await insertComment({
+          client,
+          context,
+          prNumber,
+          body: message,
+        });
+
+        break;
+      case 'update':
+        await upsertComment({
+          client,
+          context,
+          prNumber,
+          body: message,
+          existingComments: await listComments({
+            client,
+            context,
+            prNumber,
+            commentHeader: generateCommentHeader({ commentContext }),
+          }),
+        });
+
+        break;
+      case 'replace':
+      default:
+        await replaceComment({
+          client,
+          context,
+          prNumber,
+          body: message,
+          existingComments: await listComments({
+            client,
+            context,
+            prNumber,
+            commentContext,
+            commentHeader: generateCommentHeader({ commentContext }),
+          }),
+        });
+    }
   }
 }
 
