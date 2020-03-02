@@ -18,7 +18,12 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+### Added
+
+- Added `comment_context` string property, the label posted in comment to differentiate the comment posted by each action.
+
 ## [1.0.1] 2019-11-11
+
 ### Fixed
 
 - Fixed the inputs types at which the application did not work correctly, especially for booleans.
