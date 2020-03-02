@@ -31,6 +31,7 @@ The action works only with `pull_request` event.
 - `threshold_warning` - Warning when coverage is less than this threshold.
 - `status_context` - A string label to differentiate this status from the status of other systems.
 - `comment_context` - A string label to differentiate the comment posted by this action.
+- `comment_mode` - A mode for comments, supported: `replace`, `update` or `insert`.
 
 ### Example workflow 
 
