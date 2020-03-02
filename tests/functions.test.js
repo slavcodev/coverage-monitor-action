@@ -55,4 +55,167 @@ describe('functions', () => {
       },
     );
   });
+
+  it('generates status', async () => {
+    expect.hasAssertions();
+    const targetUrl = 'https://example.com';
+    const statusContext = 'coverage';
+    const rate = 50;
+
+    expect(parser.generateStatus({
+      targetUrl,
+      statusContext,
+      metric: { lines: { rate }, level: 'red' },
+    })).toStrictEqual({
+      state: 'failure',
+      description: `Error: Too low coverage - ${rate}%`,
+      target_url: targetUrl,
+      context: statusContext,
+    });
+
+    expect(parser.generateStatus({
+      targetUrl,
+      statusContext,
+      metric: { lines: { rate }, level: 'yellow' },
+    })).toStrictEqual({
+      state: 'success',
+      description: `Warning: low coverage - ${rate}%`,
+      target_url: targetUrl,
+      context: statusContext,
+    });
+
+    expect(parser.generateStatus({
+      targetUrl,
+      statusContext,
+      metric: { lines: { rate }, level: 'green' },
+    })).toStrictEqual({
+      state: 'success',
+      description: `Success: Coverage - ${rate}%`,
+      target_url: targetUrl,
+      context: statusContext,
+    });
+  });
+
+  it('generates badge URL', async () => {
+    expect.hasAssertions();
+
+    const metric = {
+      lines: { rate: 9.4 },
+      level: 'green',
+    };
+
+    expect(parser.generateBadgeUrl(metric)).toStrictEqual('https://img.shields.io/static/v1?label=coverage&message=9%&color=green');
+  });
+
+  it('generates emoji', async () => {
+    expect.hasAssertions();
+    expect(parser.generateEmoji({ lines: { rate: 100 } })).toStrictEqual(' 🎉');
+    expect(parser.generateEmoji({ lines: { rate: 99.99 } })).toStrictEqual('');
+  });
+
+  it('generates table', async () => {
+    expect.hasAssertions();
+
+    const metric = {
+      statements: {
+        total: 10,
+        covered: 1,
+        rate: 10,
+      },
+      lines: {
+        total: 10,
+        covered: 2,
+        rate: 20,
+      },
+      methods: {
+        total: 10,
+        covered: 3,
+        rate: 30,
+      },
+      branches: {
+        total: 10,
+        covered: 4,
+        rate: 40,
+      },
+      level: 'yellow',
+    };
+
+    const expectedString = `<!-- coverage-monitor-action: Coverage Report -->
+## Coverage Report
+
+|  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |
+| :-- | --: |
+| Statements: | 20% ( 2 / 10 ) |
+| Methods: | 30% ( 3 / 10 ) |
+`;
+
+    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toStrictEqual(expectedString);
+  });
+
+  function createConfigReader(inputs) {
+    return {
+      getInput(name) {
+        return inputs[
+          name.split('_').reduce(
+            (carry, item) => (carry === null ? item : `${carry}${item[0].toUpperCase() + item.slice(1)}`),
+            null,
+          )
+        ];
+      },
+    };
+  }
+
+  it('loads config', async () => {
+    expect.hasAssertions();
+
+    const inputs = {
+      comment: true,
+      check: false,
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: 10,
+      thresholdWarning: 20,
+      statusContext: 'Coverage',
+      commentContext: 'Coverage Report',
+      commentMode: 'replace',
+    };
+
+    const reader = createConfigReader(inputs);
+    const config = parser.loadConfig(reader);
+
+    expect(config).toStrictEqual(inputs);
+  });
+
+  it('coerces config values', async () => {
+    expect.hasAssertions();
+
+    const inputs = {
+      comment: 'true',
+      check: 'false',
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: '10',
+      thresholdWarning: '20',
+      statusContext: 'Coverage',
+      commentContext: 'Coverage Report',
+      commentMode: 'replace',
+    };
+
+    const expected = {
+      comment: true,
+      check: false,
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: 10,
+      thresholdWarning: 20,
+      statusContext: 'Coverage',
+      commentContext: 'Coverage Report',
+      commentMode: 'replace',
+    };
+
+    const reader = createConfigReader(inputs);
+    const config = parser.loadConfig(reader);
+
+    expect(config).toStrictEqual(expected);
+  });
 });
