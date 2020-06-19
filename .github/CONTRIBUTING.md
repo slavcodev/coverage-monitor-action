@@ -13,7 +13,7 @@ The contribution is accepted via Pull Requests
 - **Consider our release cycle** - We try to follow [SemVer v2.0.0](http://semver.org/).
     Randomly breaking public APIs is not an option.
 
-- **Create feature branches** - Don't ask us to pull from your master branch, create branch, e.g. `feature-name` or `bugfix-title`.
+- **Create feature branches** - Don't ask us to pull from your default branch, create branch, e.g. `feature-name` or `bugfix-title`.
 
 - **One pull request per feature** - If you want to do more than one thing, send multiple pull requests. Use appropriate labels.
 
