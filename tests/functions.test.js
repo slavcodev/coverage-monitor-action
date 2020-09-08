@@ -285,9 +285,10 @@ describe('functions', () => {
     'on invalid payload': { payload: {} },
     'on missing pull request': { payload: { pull_request: undefined } },
     'on invalid pull request': { payload: { pull_request: {} } },
-    'on missing number': { payload: { pull_request: { html_url: 'https://example.com', head: 'foo' } } },
-    'on missing pull request URL': { payload: { pull_request: { number: 1234, head: 'foo' } } },
-    'on missing sha': { payload: { pull_request: { number: 1234, html_url: 'https://example.com' } } },
+    'on missing number': { payload: { pull_request: { html_url: 'https://example.com', head: { sha: 'foo' } } } },
+    'on missing pull request URL': { payload: { pull_request: { number: 1234, head: { sha: 'foo' } } } },
+    'on missing head info': { payload: { pull_request: { number: 1234, html_url: 'https://example.com' } } },
+    'on invalid head sha': { payload: { pull_request: { number: 1234, html_url: 'https://example.com', head: {} } } },
   }).forEach(([dataset, request]) => {
     it(`fails on invalid webhook request: ${dataset}`, async () => {
       expect.hasAssertions();
@@ -307,7 +308,7 @@ describe('functions', () => {
         pull_request: {
           number: 1234,
           html_url: 'https://example.com',
-          head: 'foo',
+          head: { sha: 'foo' },
         },
       },
     });
