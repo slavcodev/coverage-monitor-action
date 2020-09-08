@@ -12067,6 +12067,7 @@ async function run() {
     },
   } = context.payload;
   const { sha } = context;
+  console.log("Hello", sha);
 
   const client = new github.GitHub(githubToken);
 
