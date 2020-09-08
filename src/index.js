@@ -45,7 +45,7 @@ async function run() {
     },
   } = context.payload;
   const { sha } = context;
-  console.log("Hello", sha);
+  console.log("Hello", JSON.stringify(context), JSON.stringify(context.payload));
 
   const client = new github.GitHub(githubToken);
 
