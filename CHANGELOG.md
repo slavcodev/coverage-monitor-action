@@ -18,6 +18,12 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.1.1] 2020-09-08
+
+### Fixed
+
+- Fixed the parsing webhook payload - missing `after` key.
+
 ## [1.1.0] 2020-03-02
 
 ### Added
