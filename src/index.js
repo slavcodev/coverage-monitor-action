@@ -36,13 +36,18 @@ async function run() {
   const { context = {} } = github || {};
   const { prNumber, prUrl, sha } = parseWebhook(context);
 
-  const client = new github.GitHub(githubToken);
+  if (core.isDebug()) {
+    core.debug('Handle webhook request');
+    console.log(context);
+  }
+
+  const client = github.getOctokit(githubToken);
 
   const coverage = await readFile(cloverFile);
   const metric = readMetric(coverage, { thresholdAlert, thresholdWarning });
 
   if (check) {
-    createStatus({
+    await createStatus({
       client,
       context,
       sha,

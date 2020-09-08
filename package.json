@@ -21,8 +21,8 @@
   "author": "Veaceslav Medvedev",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.4",
-    "@actions/github": "^1.1.0",
+    "@actions/core": "^1.2.5",
+    "@actions/github": "^4.0.0",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
