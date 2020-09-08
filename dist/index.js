@@ -12065,9 +12065,13 @@ async function run() {
       number: prNumber,
       html_url: prUrl,
     },
+    after: sha,
   } = context.payload;
-  const { sha } = context;
-  console.log("Hello", JSON.stringify(context), JSON.stringify(context.payload));
+  // const { sha } = context.payload;
+
+  if (!sha) {
+    console.log('no sha', JSON.stringify(context));
+  }
 
   const client = new github.GitHub(githubToken);
 
