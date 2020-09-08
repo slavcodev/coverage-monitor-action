@@ -43,8 +43,8 @@ async function run() {
       number: prNumber,
       html_url: prUrl,
     },
-    after: sha,
   } = context.payload;
+  const { sha } = context;
 
   const client = new github.GitHub(githubToken);
 
