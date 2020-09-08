@@ -177,7 +177,7 @@ function parseWebhook(request) {
       pull_request: {
         number: prNumber,
         html_url: prUrl,
-        head: sha,
+        head: { sha } = {},
       } = {},
     } = {},
   } = request || {};

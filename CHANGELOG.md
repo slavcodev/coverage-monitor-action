@@ -18,6 +18,12 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.1.2] 2020-09-08
+
+### Fixed
+
+- Hotfix to fix SHA lookup in the pull request payload.
+
 ## [1.1.1] 2020-09-08
 
 ### Fixed
