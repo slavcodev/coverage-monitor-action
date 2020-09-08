@@ -171,6 +171,28 @@ function loadConfig({ getInput }) {
   };
 }
 
+function parseWebhook(request) {
+  const {
+    payload: {
+      pull_request: {
+        number: prNumber,
+        html_url: prUrl,
+        head: sha,
+      } = {},
+    } = {},
+  } = request || {};
+
+  if (!prNumber || !prUrl || !sha) {
+    throw new Error('Action supports only pull_request event');
+  }
+
+  return {
+    prNumber,
+    prUrl,
+    sha,
+  };
+}
+
 module.exports = {
   readFile,
   readMetric,
@@ -181,4 +203,5 @@ module.exports = {
   generateStatus,
   loadConfig,
   generateCommentHeader,
+  parseWebhook,
 };

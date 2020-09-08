@@ -192,7 +192,7 @@ describe('functions', () => {
     expect(config).toStrictEqual(inputs);
   });
 
-  it('use defaults on loading config', async () => {
+  it('uses defaults on loading config', async () => {
     expect.hasAssertions();
 
     const inputs = {
@@ -251,7 +251,7 @@ describe('functions', () => {
     expect(config).toStrictEqual(expected);
   });
 
-  it('use default comment mode if got unsupported value', async () => {
+  it('uses default comment mode if got unsupported value', async () => {
     expect.hasAssertions();
 
     const inputs = {
@@ -276,5 +276,44 @@ describe('functions', () => {
     const config = parser.loadConfig(reader);
 
     expect(config).toStrictEqual(expected);
+  });
+
+  Object.entries({
+    'on undefined request': undefined,
+    'on empty request': {},
+    'on missing payload': { payload: undefined },
+    'on invalid payload': { payload: {} },
+    'on missing pull request': { payload: { pull_request: undefined } },
+    'on invalid pull request': { payload: { pull_request: {} } },
+    'on missing number': { payload: { pull_request: { html_url: 'https://example.com', head: 'foo' } } },
+    'on missing pull request URL': { payload: { pull_request: { number: 1234, head: 'foo' } } },
+    'on missing sha': { payload: { pull_request: { number: 1234, html_url: 'https://example.com' } } },
+  }).forEach(([dataset, request]) => {
+    it(`fails on invalid webhook request: ${dataset}`, async () => {
+      expect.hasAssertions();
+      expect(() => { parser.parseWebhook(request); }).toThrow(new Error('Action supports only pull_request event'));
+    });
+  });
+
+  it('parses webhook request', async () => {
+    expect.hasAssertions();
+
+    const {
+      prNumber,
+      prUrl,
+      sha,
+    } = parser.parseWebhook({
+      payload: {
+        pull_request: {
+          number: 1234,
+          html_url: 'https://example.com',
+          head: 'foo',
+        },
+      },
+    });
+
+    expect(prNumber).toStrictEqual(1234);
+    expect(prUrl).toStrictEqual('https://example.com');
+    expect(sha).toStrictEqual('foo');
   });
 });
