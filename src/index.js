@@ -7,6 +7,7 @@ const {
   generateTable,
   loadConfig,
   generateCommentHeader,
+  parseWebhook,
 } = require('./functions');
 const {
   createStatus,
@@ -17,10 +18,6 @@ const {
 } = require('./github');
 
 async function run() {
-  if (!github.context.payload.pull_request) {
-    throw new Error('Action supports only pull_request event');
-  }
-
   const {
     comment,
     check,
@@ -36,15 +33,8 @@ async function run() {
   if (!check && !comment) {
     return;
   }
-
-  const { context } = github;
-  const {
-    pull_request: {
-      number: prNumber,
-      html_url: prUrl,
-    },
-    after: sha,
-  } = context.payload;
+  const { context = {} } = github || {};
+  const { prNumber, prUrl, sha } = parseWebhook(context);
 
   const client = new github.GitHub(githubToken);
 
