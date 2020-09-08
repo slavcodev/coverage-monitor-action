@@ -43,9 +43,9 @@ async function run() {
       number: prNumber,
       html_url: prUrl,
     },
-    after: sha,
   } = context.payload;
   // const { sha } = context.payload;
+  const { sha } = context.payload.pull_request.head;
 
   if (!sha) {
     console.log('no sha', JSON.stringify(context));
