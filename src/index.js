@@ -47,10 +47,6 @@ async function run() {
   // const { sha } = context.payload;
   const { sha } = context.payload.pull_request.head;
 
-  if (!sha) {
-    console.log('no sha', JSON.stringify(context));
-  }
-
   const client = new github.GitHub(githubToken);
 
   const coverage = await readFile(cloverFile);
