@@ -18,6 +18,12 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.2.0] 2020-09-08
+
+### Changed
+
+- Updated GitHub toolkit packages, fixed vulnerabilities alerts.
+
 ## [1.1.2] 2020-09-08
 
 ### Fixed

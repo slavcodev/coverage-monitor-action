@@ -1,15 +1,13 @@
-const createStatus = ({
+const createStatus = async ({
   client,
   context,
   sha,
   status,
-}) => {
-  client.repos.createStatus({
-    ...context.repo,
-    sha,
-    ...status,
-  });
-};
+}) => client.repos.createCommitStatus({
+  ...context.repo,
+  sha,
+  ...status,
+});
 
 const listComments = async ({
   client,
@@ -25,46 +23,40 @@ const listComments = async ({
   return existingComments.filter(({ body }) => body.startsWith(commentHeader));
 };
 
-const insertComment = ({
+const insertComment = async ({
   client,
   context,
   prNumber,
   body,
-}) => {
-  client.issues.createComment({
-    ...context.repo,
-    issue_number: prNumber,
-    body,
-  });
-};
+}) => client.issues.createComment({
+  ...context.repo,
+  issue_number: prNumber,
+  body,
+});
 
-const updateComment = ({
+const updateComment = async ({
   client,
   context,
   body,
   commentId,
-}) => {
-  client.issues.updateComment({
-    ...context.repo,
-    comment_id: commentId,
-    body,
-  });
-};
+}) => client.issues.updateComment({
+  ...context.repo,
+  comment_id: commentId,
+  body,
+});
 
-const deleteComments = ({
+const deleteComments = async ({
   client,
   context,
   comments,
-}) => {
-  comments.forEach(({ id }) => {
-    client.issues.deleteComment({
-      ...context.repo,
-      comment_id: id,
-    });
-  });
-};
+}) => Promise.all(
+  comments.map(({ id }) => client.issues.deleteComment({
+    ...context.repo,
+    comment_id: id,
+  })),
+);
 
-const upsertComment = ({
+const upsertComment = async ({
   client,
   context,
   prNumber,
@@ -73,43 +65,41 @@ const upsertComment = ({
 }) => {
   const last = existingComments.pop();
 
-  deleteComments({
+  await deleteComments({
     client,
     context,
     comments: existingComments,
   });
 
-  if (last) {
-    updateComment({
+  return last
+    ? updateComment({
       client,
       context,
       body,
       commentId: last.id,
-    });
-  } else {
-    insertComment({
+    })
+    : insertComment({
       client,
       context,
       prNumber,
       body,
     });
-  }
 };
 
-const replaceComment = ({
+const replaceComment = async ({
   client,
   context,
   prNumber,
   body,
   existingComments,
 }) => {
-  deleteComments({
+  await deleteComments({
     client,
     context,
     comments: existingComments,
   });
 
-  insertComment({
+  return insertComment({
     client,
     context,
     prNumber,
