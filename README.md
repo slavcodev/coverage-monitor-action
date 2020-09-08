@@ -49,7 +49,7 @@ jobs:
         run: npm test
 
       - name: Monitor coverage
-        uses: slavcodev/coverage-monitor-action@1.1.1
+        uses: slavcodev/coverage-monitor-action@1.1.2
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           clover_file: "logs/clover.xml"
