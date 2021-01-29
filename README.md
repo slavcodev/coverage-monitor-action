@@ -29,9 +29,10 @@ The action works only with `pull_request` event.
 - `comment` - Whether comment the coverage report.
 - `threshold_alert` - Mark the build as unstable when coverage is less than this threshold.
 - `threshold_warning` - Warning when coverage is less than this threshold.
+- `threshold_metric` - A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`. The default is `lines`.
 - `status_context` - A string label to differentiate this status from the status of other systems.
 - `comment_context` - A string label to differentiate the comment posted by this action.
-- `comment_mode` - A mode for comments, supported: `replace`, `update` or `insert`.
+- `comment_mode` - A mode for comments, supported: `replace`, `update` or `insert`. The default is `replace`.
 
 ### Example workflow 
 
@@ -55,6 +56,7 @@ jobs:
           clover_file: "logs/clover.xml"
           threshold_alert: 10
           threshold_warning: 50
+          threshold_metric: "lines"
 ~~~
 
 ## Demo
