@@ -52,7 +52,7 @@ async function run() {
       client,
       context,
       sha,
-      status: generateStatus({ targetUrl: prUrl, metric, statusContext }),
+      status: generateStatus({ targetUrl: prUrl, metric, statusContext, thresholdMetric }),
     });
   }
 
