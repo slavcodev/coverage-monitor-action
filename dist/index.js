@@ -7977,7 +7977,12 @@ async function run() {
       client,
       context,
       sha,
-      status: generateStatus({ targetUrl: prUrl, metric, statusContext }),
+      status: generateStatus({
+        targetUrl: prUrl,
+        metric,
+        statusContext,
+        thresholdMetric,
+      }),
     });
   }
 
@@ -11966,8 +11971,8 @@ function generateStatus({
   statusContext,
   thresholdMetric = DEFAULT_THRESHOLD_METRIC,
 }) {
-  const level = metric.level;
-  const {rate} = metric[thresholdMetric];
+  const { level } = metric;
+  const { rate } = metric[thresholdMetric];
   if (level === 'red') {
     return {
       state: 'failure',
