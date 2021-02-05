@@ -7950,6 +7950,7 @@ async function run() {
     cloverFile,
     thresholdAlert,
     thresholdWarning,
+    thresholdMetric,
     statusContext,
     commentContext,
     commentMode,
@@ -7969,7 +7970,7 @@ async function run() {
   const client = github.getOctokit(githubToken);
 
   const coverage = await readFile(cloverFile);
-  const metric = readMetric(coverage, { thresholdAlert, thresholdWarning });
+  const metric = readMetric(coverage, { thresholdAlert, thresholdWarning, thresholdMetric });
 
   if (check) {
     await createStatus({
@@ -11858,6 +11859,10 @@ fs.readFileAsync = (filename) => new Promise(
 
 const parser = new xml2js.Parser(/* options */);
 
+const DEFAULT_THRESHOLD_METRIC = 'lines';
+const DEFAULT_THRESHOLD_ALERT = 50;
+const DEFAULT_THRESHOLD_WARNING = 90;
+
 async function readFile(filename) {
   return parser.parseStringPromise(await fs.readFileAsync(filename));
 }
@@ -11868,8 +11873,12 @@ function calcRate({ total, covered }) {
     : 0;
 }
 
-function calculateLevel(metric, { thresholdAlert = 50, thresholdWarning = 90 } = {}) {
-  const { rate: linesRate } = metric.lines;
+function calculateLevel(metric, {
+  thresholdAlert = DEFAULT_THRESHOLD_ALERT,
+  thresholdWarning = DEFAULT_THRESHOLD_WARNING,
+  thresholdMetric = DEFAULT_THRESHOLD_METRIC,
+} = {}) {
+  const { rate: linesRate } = metric[thresholdMetric];
 
   if (linesRate < thresholdAlert) {
     return 'red';
@@ -11882,7 +11891,11 @@ function calculateLevel(metric, { thresholdAlert = 50, thresholdWarning = 90 } =
   return 'green';
 }
 
-function readMetric(coverage, { thresholdAlert = 50, thresholdWarning = 90 } = {}) {
+function readMetric(coverage, {
+  thresholdAlert = DEFAULT_THRESHOLD_ALERT,
+  thresholdWarning = DEFAULT_THRESHOLD_WARNING,
+  thresholdMetric = DEFAULT_THRESHOLD_METRIC,
+} = {}) {
   const data = coverage.coverage.project[0].metrics[0].$;
   const metric = {
     statements: {
@@ -11908,7 +11921,7 @@ function readMetric(coverage, { thresholdAlert = 50, thresholdWarning = 90 } = {
   metric.methods.rate = calcRate(metric.methods);
   metric.branches.rate = calcRate(metric.branches);
 
-  metric.level = calculateLevel(metric, { thresholdAlert, thresholdWarning });
+  metric.level = calculateLevel(metric, { thresholdAlert, thresholdWarning, thresholdMetric });
 
   return metric;
 }
@@ -11940,20 +11953,25 @@ function generateTable({
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
 | :-- | --: |
-| Statements: | ${generateInfo(metric.lines)} |
+| Statements: | ${generateInfo(metric.statements)} |
+| Lines: | ${generateInfo(metric.lines)} |
 | Methods: | ${generateInfo(metric.methods)} |
+| Branches: | ${generateInfo(metric.branches)} |
 `;
 }
 
 function generateStatus({
-  metric: { level, lines: { rate } },
+  metric,
   targetUrl,
   statusContext,
+  thresholdMetric = DEFAULT_THRESHOLD_METRIC,
 }) {
+  const level = metric.level;
+  const {rate} = metric[thresholdMetric];
   if (level === 'red') {
     return {
       state: 'failure',
-      description: `Error: Too low coverage - ${rate}%`,
+      description: `Error: Too low ${thresholdMetric} coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     };
@@ -11962,7 +11980,7 @@ function generateStatus({
   if (level === 'yellow') {
     return {
       state: 'success',
-      description: `Warning: low coverage - ${rate}%`,
+      description: `Warning: low ${thresholdMetric} coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     };
@@ -11970,7 +11988,7 @@ function generateStatus({
 
   return {
     state: 'success',
-    description: `Success: Coverage - ${rate}%`,
+    description: `Success: ${thresholdMetric} coverage - ${rate}%`,
     target_url: targetUrl,
     context: statusContext,
   };
@@ -11996,9 +12014,14 @@ function loadConfig({ getInput }) {
   const statusContext = getInput('status_context') || 'Coverage Report';
   const commentContext = getInput('comment_context') || 'Coverage Report';
   let commentMode = getInput('comment_mode');
+  let thresholdMetric = getInput('threshold_metric');
 
   if (!['replace', 'update', 'insert'].includes(commentMode)) {
     commentMode = 'replace';
+  }
+
+  if (!['statements', 'lines', 'methods', 'branches'].includes(thresholdMetric)) {
+    thresholdMetric = DEFAULT_THRESHOLD_METRIC;
   }
 
   return {
@@ -12008,6 +12031,7 @@ function loadConfig({ getInput }) {
     cloverFile,
     thresholdAlert,
     thresholdWarning,
+    thresholdMetric,
     statusContext,
     commentContext,
     commentMode,

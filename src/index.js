@@ -25,6 +25,7 @@ async function run() {
     cloverFile,
     thresholdAlert,
     thresholdWarning,
+    thresholdMetric,
     statusContext,
     commentContext,
     commentMode,
@@ -44,7 +45,7 @@ async function run() {
   const client = github.getOctokit(githubToken);
 
   const coverage = await readFile(cloverFile);
-  const metric = readMetric(coverage, { thresholdAlert, thresholdWarning });
+  const metric = readMetric(coverage, { thresholdAlert, thresholdWarning, thresholdMetric });
 
   if (check) {
     await createStatus({

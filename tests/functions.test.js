@@ -44,16 +44,24 @@ describe('functions', () => {
     expect.hasAssertions();
 
     [
-      [49, 50, 90, 'red'],
-      [89, 50, 90, 'yellow'],
-      [90, 50, 90, 'green'],
+      [49, 50, 90, 'red', 'branches'],
+      [50, 50, 90, 'yellow', 'lines'],
+      [51, 50, 90, 'yellow', 'statements'],
+      [89, 50, 90, 'yellow', 'branches'],
+      [90, 50, 90, 'green', 'methods'],
+      [91, 50, 90, 'green', 'lines'],
     ].forEach(
-      ([linesRate, thresholdAlert, thresholdWarning, level]) => {
-        const metric = { lines: { rate: linesRate } };
-        const options = { thresholdAlert, thresholdWarning };
+      ([linesRate, thresholdAlert, thresholdWarning, level, thresholdMetric]) => {
+        const metric = { [thresholdMetric]: { rate: linesRate } };
+        const options = { thresholdAlert, thresholdWarning, thresholdMetric };
         expect(parser.calculateLevel(metric, options)).toStrictEqual(level);
       },
     );
+  });
+
+  it('calculates default level', async () => {
+    const metric = { lines: { rate: 61 }};
+    expect(parser.calculateLevel(metric)).toStrictEqual('yellow');
   });
 
   it('generates status', async () => {
@@ -68,7 +76,7 @@ describe('functions', () => {
       metric: { lines: { rate }, level: 'red' },
     })).toStrictEqual({
       state: 'failure',
-      description: `Error: Too low coverage - ${rate}%`,
+      description: `Error: Too low lines coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     });
@@ -76,10 +84,11 @@ describe('functions', () => {
     expect(parser.generateStatus({
       targetUrl,
       statusContext,
-      metric: { lines: { rate }, level: 'yellow' },
+      metric: { statements: { rate }, level: 'yellow' },
+      thresholdMetric: 'statements',
     })).toStrictEqual({
       state: 'success',
-      description: `Warning: low coverage - ${rate}%`,
+      description: `Warning: low statements coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     });
@@ -87,10 +96,11 @@ describe('functions', () => {
     expect(parser.generateStatus({
       targetUrl,
       statusContext,
-      metric: { lines: { rate }, level: 'green' },
+      metric: { branches: { rate }, level: 'green' },
+      thresholdMetric: 'branches',
     })).toStrictEqual({
       state: 'success',
-      description: `Success: Coverage - ${rate}%`,
+      description: `Success: branches coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     });
@@ -151,8 +161,10 @@ describe('functions', () => {
 
 |  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |
 | :-- | --: |
-| Statements: | 20% ( 2 / 10 ) |
+| Statements: | 10% ( 1 / 10 ) |
+| Lines: | 20% ( 2 / 10 ) |
 | Methods: | 30% ( 3 / 10 ) |
+| Branches: | 40% ( 4 / 10 ) |
 `;
 
     expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toStrictEqual(expectedString);
@@ -181,6 +193,7 @@ describe('functions', () => {
       cloverFile: 'clover.xml',
       thresholdAlert: 10,
       thresholdWarning: 20,
+      thresholdMetric: 'branches',
       statusContext: 'Coverage',
       commentContext: 'Coverage Report',
       commentMode: 'replace',
@@ -207,6 +220,7 @@ describe('functions', () => {
       cloverFile: 'clover.xml',
       thresholdAlert: 90,
       thresholdWarning: 50,
+      thresholdMetric: 'lines',
       statusContext: 'Coverage Report',
       commentContext: 'Coverage Report',
       commentMode: 'replace',
@@ -228,6 +242,7 @@ describe('functions', () => {
       cloverFile: 'clover.xml',
       thresholdAlert: '10',
       thresholdWarning: '20',
+      thresholdMetric: 'branches',
       statusContext: 'Coverage',
       commentContext: 'Coverage Report',
       commentMode: 'replace',
@@ -240,6 +255,7 @@ describe('functions', () => {
       cloverFile: 'clover.xml',
       thresholdAlert: 10,
       thresholdWarning: 20,
+      thresholdMetric: 'branches',
       statusContext: 'Coverage',
       commentContext: 'Coverage Report',
       commentMode: 'replace',
@@ -267,6 +283,36 @@ describe('functions', () => {
       cloverFile: 'clover.xml',
       thresholdAlert: 90,
       thresholdWarning: 50,
+      thresholdMetric: 'lines',
+      statusContext: 'Coverage Report',
+      commentContext: 'Coverage Report',
+      commentMode: 'replace',
+    };
+
+    const reader = createConfigReader(inputs);
+    const config = parser.loadConfig(reader);
+
+    expect(config).toStrictEqual(expected);
+  });
+
+  it('uses default threshold metric if got unsupported value', async () => {
+    expect.hasAssertions();
+
+    const inputs = {
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      commentMode: 'replace',
+      thresholdMetric: 'foo',
+    };
+
+    const expected = {
+      comment: false,
+      check: false,
+      githubToken: '***',
+      cloverFile: 'clover.xml',
+      thresholdAlert: 90,
+      thresholdWarning: 50,
+      thresholdMetric: 'lines',
       statusContext: 'Coverage Report',
       commentContext: 'Coverage Report',
       commentMode: 'replace',
