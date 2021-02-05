@@ -26,6 +26,10 @@ inputs:
     description: "Warning when coverage is less than this threshold."
     required: false
     default: '90'
+  threshold_metric:
+    description: "A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`."
+    required: false
+    default: 'lines'
   status_context:
     description: "A string label to differentiate this status from the status of other systems."
     required: false

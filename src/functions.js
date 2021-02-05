@@ -170,7 +170,7 @@ function loadConfig({ getInput }) {
   const statusContext = getInput('status_context') || 'Coverage Report';
   const commentContext = getInput('comment_context') || 'Coverage Report';
   let commentMode = getInput('comment_mode');
-  let thresholdMetric = getInput('threshold_metric');
+  let thresholdMetric = getInput('threshold_metric') || DEFAULT_THRESHOLD_METRIC;
 
   if (!['replace', 'update', 'insert'].includes(commentMode)) {
     commentMode = 'replace';
