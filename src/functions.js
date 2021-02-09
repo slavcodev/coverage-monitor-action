@@ -108,7 +108,7 @@ function generateTable({
 ## ${commentContext}${generateEmoji(metric)}
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
-| :-- | --: |
+| :-- | :-- |
 | Statements: | ${generateInfo(metric.statements)} |
 | Lines: | ${generateInfo(metric.lines)} |
 | Methods: | ${generateInfo(metric.methods)} |

@@ -160,7 +160,7 @@ describe('functions', () => {
 ## Coverage Report
 
 |  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |
-| :-- | --: |
+| :-- | :-- |
 | Statements: | 10% ( 1 / 10 ) |
 | Lines: | 20% ( 2 / 10 ) |
 | Methods: | 30% ( 3 / 10 ) |
