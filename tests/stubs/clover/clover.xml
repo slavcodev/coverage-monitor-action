@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <coverage generated="1573565074824" clover="3.2.0">
   <project timestamp="1573565074824" name="All files">
-    <metrics statements="34" coveredstatements="24" conditionals="20" coveredconditionals="11" methods="12" coveredmethods="10" elements="66" coveredelements="45" complexity="0" loc="34" ncloc="34" packages="1" files="1" classes="1"/>
+    <metrics statements="34" coveredstatements="24" conditionals="20" coveredconditionals="11" methods="12"
+             coveredmethods="10" elements="66" coveredelements="45" complexity="0" loc="34" ncloc="34" packages="1"
+             files="1" classes="1"/>
     <file name="main.js" path="./src/main.js">
-      <metrics statements="34" coveredstatements="24" conditionals="20" coveredconditionals="11" methods="12" coveredmethods="10"/>
+      <metrics statements="34" coveredstatements="24" conditionals="20" coveredconditionals="11" methods="12"
+               coveredmethods="10"/>
       <line num="1" count="1" type="stmt"/>
       <line num="2" count="1" type="stmt"/>
       <line num="4" count="2" type="stmt"/>

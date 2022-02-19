@@ -2,7 +2,7 @@
 module.exports = {
   verbose: true,
   collectCoverage: true,
-  coverageDirectory: 'logs',
+  coverageDirectory: '.coverage',
   coveragePathIgnorePatterns: ['tests'],
   coverageReporters: ['clover', 'html', 'json', 'text'],
 };

@@ -23,10 +23,18 @@ async function readFile(filename) {
   return parser.parseStringPromise(await fs.readFileAsync(filename));
 }
 
-function calcRate({ total, covered }) {
-  return total
+function calcMetric(total, covered) {
+  const available = total > 0 && covered > 0;
+  const rate = total
     ? Number((covered / total) * 100).toFixed(2) * 1
     : 0;
+
+  return {
+    available,
+    total,
+    covered,
+    rate,
+  };
 }
 
 function calculateLevel(metric, {
@@ -54,28 +62,11 @@ function readMetric(coverage, {
 } = {}) {
   const data = coverage.coverage.project[0].metrics[0].$;
   const metric = {
-    statements: {
-      total: data.elements * 1,
-      covered: data.coveredelements * 1,
-    },
-    lines: {
-      total: data.statements * 1,
-      covered: data.coveredstatements * 1,
-    },
-    methods: {
-      total: data.methods * 1,
-      covered: data.coveredmethods * 1,
-    },
-    branches: {
-      total: data.conditionals * 1,
-      covered: data.coveredconditionals * 1,
-    },
+    statements: calcMetric(data.elements * 1, data.coveredelements * 1),
+    lines: calcMetric(data.statements * 1, data.coveredstatements * 1),
+    methods: calcMetric(data.methods * 1, data.coveredmethods * 1),
+    branches: calcMetric(data.conditionals * 1, data.coveredconditionals * 1),
   };
-
-  metric.statements.rate = calcRate(metric.statements);
-  metric.lines.rate = calcRate(metric.lines);
-  metric.methods.rate = calcRate(metric.methods);
-  metric.branches.rate = calcRate(metric.branches);
 
   metric.level = calculateLevel(metric, { thresholdAlert, thresholdWarning, thresholdMetric });
 
@@ -92,8 +83,15 @@ function generateEmoji(metric) {
     : '';
 }
 
-function generateInfo({ rate, total, covered }) {
-  return `${rate}% ( ${covered} / ${total} )`;
+function generateInfo({
+  available,
+  rate,
+  total,
+  covered,
+}) {
+  return available
+    ? `${rate}% ( ${covered} / ${total} )`
+    : 'N/A';
 }
 
 function generateCommentHeader({ commentContext }) {
