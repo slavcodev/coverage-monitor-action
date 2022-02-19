@@ -21,17 +21,17 @@
   "author": "Veaceslav Medvedev",
   "license": "MIT",
   "dependencies": {
-    "@actions/core": "^1.2.6",
-    "@actions/github": "^4.0.0",
+    "@actions/core": "^1.6.0",
+    "@actions/github": "^5.0.0",
     "xml2js": "^0.4.23"
   },
   "devDependencies": {
-    "@types/jest": "^26.0.13",
+    "@types/jest": "^27.4.0",
     "@zeit/ncc": "^0.22.3",
-    "eslint": "^7.8.1",
-    "eslint-config-airbnb-base": "^14.2.0",
-    "eslint-plugin-import": "^2.22.0",
-    "eslint-plugin-jest": "^24.0.0",
-    "jest": "^26.4.2"
+    "eslint": "^8.9.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.4",
+    "eslint-plugin-jest": "^26.1.1",
+    "jest": "^27.5.1"
   }
 }
