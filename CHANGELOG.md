@@ -18,15 +18,17 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
-## [1.3.0] 2021-01-29
+## [1.3.0] 2022-02-19
 
 ### Added
 
 - Added `threshold_metric` string property, the metric which should be considered, when calculating level.
 
-### Change
+### Changed
 
-- Updated the table to include all 4 metics.
+- Updated GitHub toolkit packages, fixed vulnerabilities alerts.
+- Updated the table to include all 4 metrics.
+- Updated comment table to show `N/A` if metric was not found in coverage file.
 
 ## [1.2.0] 2020-09-08
 

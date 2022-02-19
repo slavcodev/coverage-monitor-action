@@ -59,9 +59,12 @@ jobs:
           threshold_metric: "lines"
 ~~~
 
-## Demo
+## Preview
 
-See [Pull Request #1](https://github.com/slavcodev/coverage-monitor-action/pull/1)
+[![Screenshot][img-screenshot]][link-example-pr]
+
+[img-screenshot]: screenshot.png
+[link-example-pr]: https://github.com/slavcodev/coverage-monitor-action/pull/1
 
 ## Contributing
 

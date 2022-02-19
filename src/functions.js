@@ -23,10 +23,20 @@ async function readFile(filename) {
   return parser.parseStringPromise(await fs.readFileAsync(filename));
 }
 
+function toBool(value) {
+  return typeof value === 'boolean'
+    ? value
+    : value === 'true';
+}
+
+function toNumber(value) {
+  return value * 1;
+}
+
 function calcMetric(total, covered) {
   const available = total > 0 && covered > 0;
   const rate = total
-    ? Number((covered / total) * 100).toFixed(2) * 1
+    ? toNumber(Number((covered / total) * 100).toFixed(2))
     : 0;
 
   return {
@@ -42,13 +52,13 @@ function calculateLevel(metric, {
   thresholdWarning = DEFAULT_THRESHOLD_WARNING,
   thresholdMetric = DEFAULT_THRESHOLD_METRIC,
 } = {}) {
-  const { rate: linesRate } = metric[thresholdMetric];
+  const { rate } = metric[thresholdMetric];
 
-  if (linesRate < thresholdAlert) {
+  if (rate < thresholdAlert) {
     return 'red';
   }
 
-  if (linesRate < thresholdWarning) {
+  if (rate < thresholdWarning) {
     return 'yellow';
   }
 
@@ -60,12 +70,22 @@ function readMetric(coverage, {
   thresholdWarning = DEFAULT_THRESHOLD_WARNING,
   thresholdMetric = DEFAULT_THRESHOLD_METRIC,
 } = {}) {
-  const data = coverage.coverage.project[0].metrics[0].$;
+  const {
+    elements,
+    coveredelements,
+    statements,
+    coveredstatements,
+    methods,
+    coveredmethods,
+    conditionals,
+    coveredconditionals,
+  } = coverage.coverage.project[0].metrics[0].$;
+
   const metric = {
-    statements: calcMetric(data.elements * 1, data.coveredelements * 1),
-    lines: calcMetric(data.statements * 1, data.coveredstatements * 1),
-    methods: calcMetric(data.methods * 1, data.coveredmethods * 1),
-    branches: calcMetric(data.conditionals * 1, data.coveredconditionals * 1),
+    statements: calcMetric(toNumber(elements), toNumber(coveredelements)),
+    lines: calcMetric(toNumber(statements), toNumber(coveredstatements)),
+    methods: calcMetric(toNumber(methods), toNumber(coveredmethods)),
+    branches: calcMetric(toNumber(conditionals), toNumber(coveredconditionals)),
   };
 
   metric.level = calculateLevel(metric, { thresholdAlert, thresholdWarning, thresholdMetric });
@@ -148,23 +168,13 @@ function generateStatus({
   };
 }
 
-function toBool(value) {
-  return typeof value === 'boolean'
-    ? value
-    : value === 'true';
-}
-
-function toInt(value) {
-  return value * 1;
-}
-
 function loadConfig({ getInput }) {
   const comment = toBool(getInput('comment'));
   const check = toBool(getInput('check'));
   const githubToken = getInput('github_token', { required: true });
   const cloverFile = getInput('clover_file', { required: true });
-  const thresholdAlert = toInt(getInput('threshold_alert') || 90);
-  const thresholdWarning = toInt(getInput('threshold_warning') || 50);
+  const thresholdAlert = toNumber(getInput('threshold_alert') || 90);
+  const thresholdWarning = toNumber(getInput('threshold_warning') || 50);
   const statusContext = getInput('status_context') || 'Coverage Report';
   const commentContext = getInput('comment_context') || 'Coverage Report';
   let commentMode = getInput('comment_mode');
