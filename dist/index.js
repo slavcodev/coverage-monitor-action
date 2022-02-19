@@ -8904,7 +8904,7 @@ async function run() {
     console.log(context);
   }
 
-  const client = github.getOctokit(githubToken);
+  const client = github.getOctokit(githubToken).rest;
 
   const coverage = await readFile(cloverFile);
   const metric = readMetric(coverage, { thresholdAlert, thresholdWarning });
