@@ -111,7 +111,7 @@ describe('functions', () => {
       expect(metric.branches).toStrictEqual(branches);
 
       expect(metric).toHaveProperty('level');
-      expect(metric.level).toStrictEqual(level);
+      expect(metric.level).toBe(level);
     },
   );
 
@@ -129,53 +129,55 @@ describe('functions', () => {
       ([linesRate, thresholdAlert, thresholdWarning, level, thresholdMetric]) => {
         const metric = { [thresholdMetric]: { rate: linesRate } };
         const options = { thresholdAlert, thresholdWarning, thresholdMetric };
-        expect(parser.calculateLevel(metric, options)).toStrictEqual(level);
+        expect(parser.calculateLevel(metric, options)).toBe(level);
       },
     );
   });
 
   it('calculates default level', async () => {
-    const metric = { lines: { rate: 61 }};
-    expect(parser.calculateLevel(metric)).toStrictEqual('yellow');
+    expect.hasAssertions();
+
+    const metric = { lines: { rate: 61 } };
+    expect(parser.calculateLevel(metric)).toBe('yellow');
   });
 
-  it('generates status', async () => {
+  it.each([
+    {
+      thresholdMetric: undefined,
+      metric: { lines: { rate: 50 }, level: 'red' },
+      expectedState: 'failure',
+      expectedDescription: 'Error: Too low lines coverage - 50%',
+    },
+    {
+      thresholdMetric: 'statements',
+      metric: { statements: { rate: 50 }, level: 'yellow' },
+      expectedState: 'success',
+      expectedDescription: 'Warning: low statements coverage - 50%',
+    },
+    {
+      thresholdMetric: 'branches',
+      metric: { branches: { rate: 50 }, level: 'green' },
+      expectedState: 'success',
+      expectedDescription: 'Success: branches coverage - 50%',
+    },
+  ])('generates status', async ({
+    thresholdMetric,
+    metric,
+    expectedState,
+    expectedDescription,
+  }) => {
     expect.hasAssertions();
     const targetUrl = 'https://example.com';
     const statusContext = 'coverage';
-    const rate = 50;
 
     expect(parser.generateStatus({
       targetUrl,
       statusContext,
-      metric: { lines: { rate }, level: 'red' },
+      metric,
+      thresholdMetric,
     })).toStrictEqual({
-      state: 'failure',
-      description: `Error: Too low lines coverage - ${rate}%`,
-      target_url: targetUrl,
-      context: statusContext,
-    });
-
-    expect(parser.generateStatus({
-      targetUrl,
-      statusContext,
-      metric: { statements: { rate }, level: 'yellow' },
-      thresholdMetric: 'statements',
-    })).toStrictEqual({
-      state: 'success',
-      description: `Warning: low statements coverage - ${rate}%`,
-      target_url: targetUrl,
-      context: statusContext,
-    });
-
-    expect(parser.generateStatus({
-      targetUrl,
-      statusContext,
-      metric: { branches: { rate }, level: 'green' },
-      thresholdMetric: 'branches',
-    })).toStrictEqual({
-      state: 'success',
-      description: `Success: branches coverage - ${rate}%`,
+      state: expectedState,
+      description: expectedDescription,
       target_url: targetUrl,
       context: statusContext,
     });
@@ -189,19 +191,19 @@ describe('functions', () => {
       level: 'green',
     };
 
-    expect(parser.generateBadgeUrl(metric)).toStrictEqual('https://img.shields.io/static/v1?label=coverage&message=9%&color=green');
+    expect(parser.generateBadgeUrl(metric)).toBe('https://img.shields.io/static/v1?label=coverage&message=9%&color=green');
   });
 
   it('generates emoji', async () => {
     expect.hasAssertions();
-    expect(parser.generateEmoji({ lines: { rate: 100 } })).toStrictEqual(' 🎉');
-    expect(parser.generateEmoji({ lines: { rate: 99.99 } })).toStrictEqual('');
+    expect(parser.generateEmoji({ lines: { rate: 100 } })).toBe(' 🎉');
+    expect(parser.generateEmoji({ lines: { rate: 99.99 } })).toBe('');
   });
 
   it('generates header', async () => {
     expect.hasAssertions();
 
-    expect(parser.generateCommentHeader({ commentContext: 'foobar' })).toStrictEqual(`<!-- coverage-monitor-action: foobar -->`);
+    expect(parser.generateCommentHeader({ commentContext: 'foobar' })).toBe(`<!-- coverage-monitor-action: foobar -->`);
   });
 
   it('generates table', async () => {
@@ -246,13 +248,19 @@ describe('functions', () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toStrictEqual(expectedString);
+    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
   it('adds N/A when metric not available when generates table', async () => {
     expect.hasAssertions();
 
     const metric = {
+      statements: {
+        available: true,
+        total: 10,
+        covered: 1,
+        rate: 10,
+      },
       lines: {
         available: true,
         total: 10,
@@ -265,6 +273,12 @@ describe('functions', () => {
         covered: 0,
         rate: 0,
       },
+      branches: {
+        available: true,
+        total: 10,
+        covered: 4,
+        rate: 40,
+      },
       level: 'yellow',
     };
 
@@ -272,12 +286,14 @@ describe('functions', () => {
 ## Coverage Report
 
 |  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |
-| :-- | --: |
-| Statements: | 20% ( 2 / 10 ) |
+| :-- | :-- |
+| Statements: | 10% ( 1 / 10 ) |
+| Lines: | 20% ( 2 / 10 ) |
 | Methods: | N/A |
+| Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toStrictEqual(expectedString);
+    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
   function createConfigReader(inputs) {
@@ -469,8 +485,8 @@ describe('functions', () => {
       },
     });
 
-    expect(prNumber).toStrictEqual(1234);
-    expect(prUrl).toStrictEqual('https://example.com');
-    expect(sha).toStrictEqual('foo');
+    expect(prNumber).toBe(1234);
+    expect(prUrl).toBe('https://example.com');
+    expect(sha).toBe('foo');
   });
 });
