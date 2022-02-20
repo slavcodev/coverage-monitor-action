@@ -58,7 +58,6 @@ async function run() {
         targetUrl: prUrl,
         coverage,
         statusContext,
-        thresholdMetric,
       }),
     });
   }

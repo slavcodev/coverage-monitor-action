@@ -130,14 +130,13 @@ function generateStatus({
   coverage,
   targetUrl,
   statusContext,
-  thresholdMetric = DEFAULT_THRESHOLD_METRIC,
 }) {
-  const { rate, level } = coverage[thresholdMetric];
+  const { rate, level } = coverage[coverage.threshold.thresholdMetric];
 
   if (level === 'red') {
     return {
       state: 'failure',
-      description: `Error: Too low ${thresholdMetric} coverage - ${rate}%`,
+      description: `Error: Too low ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     };
@@ -146,7 +145,7 @@ function generateStatus({
   if (level === 'yellow') {
     return {
       state: 'success',
-      description: `Warning: low ${thresholdMetric} coverage - ${rate}%`,
+      description: `Warning: low ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     };
@@ -154,7 +153,7 @@ function generateStatus({
 
   return {
     state: 'success',
-    description: `Success: ${thresholdMetric} coverage - ${rate}%`,
+    description: `Success: ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
     target_url: targetUrl,
     context: statusContext,
   };

@@ -128,25 +128,21 @@ describe('functions', () => {
 
   it.each([
     {
-      thresholdMetric: undefined,
-      coverage: { lines: { rate: 50, level: 'red' } },
+      coverage: { lines: { rate: 50, level: 'red' }, threshold: { thresholdMetric: 'lines' } },
       expectedState: 'failure',
       expectedDescription: 'Error: Too low lines coverage - 50%',
     },
     {
-      thresholdMetric: 'statements',
-      coverage: { statements: { rate: 50, level: 'yellow' } },
+      coverage: { statements: { rate: 50, level: 'yellow' }, threshold: { thresholdMetric: 'statements' } },
       expectedState: 'success',
       expectedDescription: 'Warning: low statements coverage - 50%',
     },
     {
-      thresholdMetric: 'branches',
-      coverage: { branches: { rate: 50, level: 'green' } },
+      coverage: { branches: { rate: 50, level: 'green' }, threshold: { thresholdMetric: 'branches' } },
       expectedState: 'success',
       expectedDescription: 'Success: branches coverage - 50%',
     },
   ])('generates status', async ({
-    thresholdMetric,
     coverage,
     expectedState,
     expectedDescription,
@@ -159,7 +155,6 @@ describe('functions', () => {
       targetUrl,
       statusContext,
       coverage,
-      thresholdMetric,
     })).toStrictEqual({
       state: expectedState,
       description: expectedDescription,
