@@ -61,9 +61,11 @@ jobs:
 
 ## Preview
 
-[![Screenshot][img-screenshot]][link-example-pr]
+[![Screenshot][img-screenshot-dark]][link-example-pr]
+[![Screenshot][img-screenshot-light]][link-example-pr]
 
-[img-screenshot]: screenshot.png
+[img-screenshot-dark]: screenshot.png#gh-dark-mode-only
+[img-screenshot-light]: screenshot-light.png#gh-light-mode-only
 [link-example-pr]: https://github.com/slavcodev/coverage-monitor-action/pull/1
 
 ## Contributing
