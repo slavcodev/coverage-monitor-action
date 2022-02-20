@@ -76,26 +76,25 @@ function readMetric(xml, {
     coveredconditionals,
   } = xml.coverage.project[0].metrics[0].$;
 
-  const metric = {
+  return {
+    threshold: { thresholdAlert, thresholdWarning, thresholdMetric },
     statements: calcMetric(toNumber(elements), toNumber(coveredelements), thresholdAlert, thresholdWarning),
     lines: calcMetric(toNumber(statements), toNumber(coveredstatements), thresholdAlert, thresholdWarning),
     methods: calcMetric(toNumber(methods), toNumber(coveredmethods), thresholdAlert, thresholdWarning),
     branches: calcMetric(toNumber(conditionals), toNumber(coveredconditionals), thresholdAlert, thresholdWarning),
   };
-
-  metric.level = metric[thresholdMetric].level;
-
-  return metric;
 }
 
-function generateBadgeUrl(metric) {
-  return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(metric.lines.rate)}%&color=${metric.level}`;
+function generateBadgeUrl(coverage) {
+  const { rate, level } = coverage[coverage.threshold.thresholdMetric];
+
+  return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate)}%&color=${level}`;
 }
 
-function generateEmoji(metric) {
-  return metric.lines.rate === 100
-    ? ' 🎉'
-    : '';
+function generateEmoji(coverage) {
+  const { rate } = coverage[coverage.threshold.thresholdMetric];
+
+  return rate === 100 ? ' 🎉' : '';
 }
 
 function generateCommentHeader({ commentContext }) {
@@ -111,19 +110,19 @@ function generateTableRow(title, {
 }
 
 function generateTable({
-  metric,
+  coverage,
   commentContext,
 }) {
   return `${generateCommentHeader({ commentContext })}
-## ${commentContext}${generateEmoji(metric)}
+## ${commentContext}${generateEmoji(coverage)}
 
-|  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
+|  Totals | ![Coverage](${generateBadgeUrl(coverage)}) |
 | :-- | :-- |
 ${[
-    generateTableRow('Statements', metric.statements),
-    generateTableRow('Methods', metric.methods),
-    generateTableRow('Lines', metric.lines),
-    generateTableRow('Branches', metric.branches),
+    generateTableRow('Statements', coverage.statements),
+    generateTableRow('Methods', coverage.methods),
+    generateTableRow('Lines', coverage.lines),
+    generateTableRow('Branches', coverage.branches),
   ].join('')}`;
 }
 

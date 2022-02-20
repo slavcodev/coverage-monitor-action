@@ -64,7 +64,7 @@ async function run() {
   }
 
   if (comment) {
-    const message = generateTable({ metric: coverage, commentContext });
+    const message = generateTable({ coverage, commentContext });
 
     switch (commentMode) {
       case 'insert':

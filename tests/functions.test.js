@@ -171,18 +171,22 @@ describe('functions', () => {
   it('generates badge URL', async () => {
     expect.hasAssertions();
 
-    const metric = {
-      lines: { rate: 9.4 },
-      level: 'green',
+    const coverage = {
+      threshold: { thresholdAlert: 0, thresholdWarning: 1, thresholdMetric: 'lines' },
+      lines: { rate: 9.4, level: 'green' },
     };
 
-    expect(parser.generateBadgeUrl(metric)).toBe('https://img.shields.io/static/v1?label=coverage&message=9%&color=green');
+    expect(parser.generateBadgeUrl(coverage)).toBe(
+      'https://img.shields.io/static/v1?label=coverage&message=9%&color=green',
+    );
   });
 
-  it('generates emoji', async () => {
+  it.each([
+    { expected: ' 🎉', coverage: { lines: { rate: 100 }, threshold: { thresholdMetric: 'lines' } } },
+    { expected: '', coverage: { branches: { rate: 99.99 }, threshold: { thresholdMetric: 'branches' } } },
+  ])('generates emoji $expected', async ({ expected, coverage }) => {
     expect.hasAssertions();
-    expect(parser.generateEmoji({ lines: { rate: 100 } })).toBe(' 🎉');
-    expect(parser.generateEmoji({ lines: { rate: 99.99 } })).toBe('');
+    expect(parser.generateEmoji(coverage)).toBe(expected);
   });
 
   it('generates header', async () => {
@@ -194,28 +198,32 @@ describe('functions', () => {
   it('generates table', async () => {
     expect.hasAssertions();
 
-    const metric = {
+    const coverage = {
+      threshold: { thresholdAlert: 0, thresholdWarning: 50, thresholdMetric: 'lines' },
       statements: {
         total: 10,
         covered: 1,
         rate: 10,
+        level: 'yellow',
       },
       lines: {
         total: 10,
         covered: 2,
         rate: 20,
+        level: 'yellow',
       },
       methods: {
         total: 10,
         covered: 3,
         rate: 30,
+        level: 'yellow',
       },
       branches: {
         total: 10,
         covered: 4,
         rate: 40,
+        level: 'yellow',
       },
-      level: 'yellow',
     };
 
     const expectedString = `<!-- coverage-monitor-action: Coverage Report -->
@@ -229,47 +237,51 @@ describe('functions', () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toBe(expectedString);
+    expect(parser.generateTable({ coverage, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
   it('hides metric rows in table when metric is not available (total is zero)', async () => {
     expect.hasAssertions();
 
-    const metric = {
+    const coverage = {
+      threshold: { thresholdAlert: 30, thresholdWarning: 50, thresholdMetric: 'branches' },
       statements: {
         total: 10,
         covered: 1,
         rate: 10,
+        level: 'red',
       },
       lines: {
         total: 10,
         covered: 2,
         rate: 20,
+        level: 'red',
       },
       methods: {
         total: 0,
         covered: 0,
         rate: 0,
+        level: 'red',
       },
       branches: {
         total: 10,
         covered: 4,
         rate: 40,
+        level: 'yellow',
       },
-      level: 'yellow',
     };
 
     const expectedString = `<!-- coverage-monitor-action: Coverage Report -->
 ## Coverage Report
 
-|  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |
+|  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=40%&color=yellow) |
 | :-- | :-- |
 | Statements: | 10% ( 1 / 10 ) |
 | Lines: | 20% ( 2 / 10 ) |
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toBe(expectedString);
+    expect(parser.generateTable({ coverage, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
   function createConfigReader(inputs) {
