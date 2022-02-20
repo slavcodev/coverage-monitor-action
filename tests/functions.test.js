@@ -110,26 +110,17 @@ describe('functions', () => {
     expect.hasAssertions();
 
     [
-      [49, 50, 90, 'red', 'branches'],
-      [50, 50, 90, 'yellow', 'lines'],
-      [51, 50, 90, 'yellow', 'statements'],
-      [89, 50, 90, 'yellow', 'branches'],
-      [90, 50, 90, 'green', 'methods'],
-      [91, 50, 90, 'green', 'lines'],
+      [49, 50, 90, 'red'],
+      [50, 50, 90, 'yellow'],
+      [51, 50, 90, 'yellow'],
+      [89, 50, 90, 'yellow'],
+      [90, 50, 90, 'green'],
+      [91, 50, 90, 'green'],
     ].forEach(
-      ([linesRate, thresholdAlert, thresholdWarning, level, thresholdMetric]) => {
-        const metric = { [thresholdMetric]: { rate: linesRate } };
-        const options = { thresholdAlert, thresholdWarning, thresholdMetric };
-        expect(parser.calculateLevel(metric, options)).toBe(level);
+      ([rate, thresholdAlert, thresholdWarning, level]) => {
+        expect(parser.calculateLevel({ rate }, thresholdAlert, thresholdWarning)).toBe(level);
       },
     );
-  });
-
-  it('calculates default level', async () => {
-    expect.hasAssertions();
-
-    const metric = { lines: { rate: 61 } };
-    expect(parser.calculateLevel(metric)).toBe('yellow');
   });
 
   it.each([

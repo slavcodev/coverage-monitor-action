@@ -45,12 +45,8 @@ function calcMetric(total, covered) {
   };
 }
 
-function calculateLevel(metric, {
-  thresholdAlert = DEFAULT_THRESHOLD_ALERT,
-  thresholdWarning = DEFAULT_THRESHOLD_WARNING,
-  thresholdMetric = DEFAULT_THRESHOLD_METRIC,
-} = {}) {
-  const { rate } = metric[thresholdMetric];
+function calculateLevel(metric, thresholdAlert, thresholdWarning) {
+  const { rate } = metric;
 
   if (rate < thresholdAlert) {
     return 'red';
@@ -86,7 +82,7 @@ function readMetric(coverage, {
     branches: calcMetric(toNumber(conditionals), toNumber(coveredconditionals)),
   };
 
-  metric.level = calculateLevel(metric, { thresholdAlert, thresholdWarning, thresholdMetric });
+  metric.level = calculateLevel(metric[thresholdMetric], thresholdAlert, thresholdWarning);
 
   return metric;
 }
