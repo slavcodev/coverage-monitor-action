@@ -7,25 +7,21 @@ describe('functions', () => {
       filename: '/stubs/clover/clover.xml',
       expectedMetric: {
         lines: {
-          available: true,
           total: 34,
           covered: 24,
           rate: 70.59,
         },
         statements: {
-          available: true,
           total: 66,
           covered: 45,
           rate: 68.18,
         },
         methods: {
-          available: true,
           total: 12,
           covered: 10,
           rate: 83.33,
         },
         branches: {
-          available: true,
           total: 20,
           covered: 11,
           rate: 55,
@@ -37,25 +33,21 @@ describe('functions', () => {
       filename: '/stubs/clover/clover_no_branches.xml',
       expectedMetric: {
         lines: {
-          available: true,
           total: 10,
           covered: 9,
           rate: 90,
         },
         statements: {
-          available: true,
           total: 12,
           covered: 11,
           rate: 91.67,
         },
         methods: {
-          available: true,
           total: 4,
           covered: 3,
           rate: 75,
         },
         branches: {
-          available: false,
           total: 0,
           covered: 0,
           rate: 0,
@@ -99,7 +91,6 @@ describe('functions', () => {
 
       ['statements', 'lines', 'methods', 'branches'].forEach((type) => {
         expect(metric).toHaveProperty(type);
-        expect(metric[type]).toHaveProperty('available');
         expect(metric[type]).toHaveProperty('total');
         expect(metric[type]).toHaveProperty('covered');
         expect(metric[type]).toHaveProperty('rate');
@@ -211,25 +202,21 @@ describe('functions', () => {
 
     const metric = {
       statements: {
-        available: true,
         total: 10,
         covered: 1,
         rate: 10,
       },
       lines: {
-        available: true,
         total: 10,
         covered: 2,
         rate: 20,
       },
       methods: {
-        available: true,
         total: 10,
         covered: 3,
         rate: 30,
       },
       branches: {
-        available: true,
         total: 10,
         covered: 4,
         rate: 40,
@@ -243,38 +230,34 @@ describe('functions', () => {
 |  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |
 | :-- | :-- |
 | Statements: | 10% ( 1 / 10 ) |
-| Lines: | 20% ( 2 / 10 ) |
 | Methods: | 30% ( 3 / 10 ) |
+| Lines: | 20% ( 2 / 10 ) |
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
     expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
-  it('adds N/A when metric not available when generates table', async () => {
+  it('hides metric rows in table when metric is not available (total is zero)', async () => {
     expect.hasAssertions();
 
     const metric = {
       statements: {
-        available: true,
         total: 10,
         covered: 1,
         rate: 10,
       },
       lines: {
-        available: true,
         total: 10,
         covered: 2,
         rate: 20,
       },
       methods: {
-        available: false,
         total: 0,
         covered: 0,
         rate: 0,
       },
       branches: {
-        available: true,
         total: 10,
         covered: 4,
         rate: 40,
@@ -289,7 +272,6 @@ describe('functions', () => {
 | :-- | :-- |
 | Statements: | 10% ( 1 / 10 ) |
 | Lines: | 20% ( 2 / 10 ) |
-| Methods: | N/A |
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
