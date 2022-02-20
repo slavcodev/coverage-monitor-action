@@ -33,21 +33,7 @@ function toNumber(value) {
   return value * 1;
 }
 
-function calcMetric(total, covered) {
-  const rate = total
-    ? toNumber(Number((covered / total) * 100).toFixed(2))
-    : 0;
-
-  return {
-    total,
-    covered,
-    rate,
-  };
-}
-
-function calculateLevel(metric, thresholdAlert, thresholdWarning) {
-  const { rate } = metric;
-
+function calculateLevel({ rate }, thresholdAlert, thresholdWarning) {
   if (rate < thresholdAlert) {
     return 'red';
   }
@@ -59,7 +45,22 @@ function calculateLevel(metric, thresholdAlert, thresholdWarning) {
   return 'green';
 }
 
-function readMetric(coverage, {
+function calcMetric(total, covered, thresholdAlert, thresholdWarning) {
+  const rate = total
+    ? toNumber(Number((covered / total) * 100).toFixed(2))
+    : 0;
+
+  const level = calculateLevel({ rate }, thresholdAlert, thresholdWarning);
+
+  return {
+    total,
+    covered,
+    rate,
+    level,
+  };
+}
+
+function readMetric(xml, {
   thresholdAlert = DEFAULT_THRESHOLD_ALERT,
   thresholdWarning = DEFAULT_THRESHOLD_WARNING,
   thresholdMetric = DEFAULT_THRESHOLD_METRIC,
@@ -73,16 +74,16 @@ function readMetric(coverage, {
     coveredmethods,
     conditionals,
     coveredconditionals,
-  } = coverage.coverage.project[0].metrics[0].$;
+  } = xml.coverage.project[0].metrics[0].$;
 
   const metric = {
-    statements: calcMetric(toNumber(elements), toNumber(coveredelements)),
-    lines: calcMetric(toNumber(statements), toNumber(coveredstatements)),
-    methods: calcMetric(toNumber(methods), toNumber(coveredmethods)),
-    branches: calcMetric(toNumber(conditionals), toNumber(coveredconditionals)),
+    statements: calcMetric(toNumber(elements), toNumber(coveredelements), thresholdAlert, thresholdWarning),
+    lines: calcMetric(toNumber(statements), toNumber(coveredstatements), thresholdAlert, thresholdWarning),
+    methods: calcMetric(toNumber(methods), toNumber(coveredmethods), thresholdAlert, thresholdWarning),
+    branches: calcMetric(toNumber(conditionals), toNumber(coveredconditionals), thresholdAlert, thresholdWarning),
   };
 
-  metric.level = calculateLevel(metric[thresholdMetric], thresholdAlert, thresholdWarning);
+  metric.level = metric[thresholdMetric].level;
 
   return metric;
 }
@@ -127,13 +128,13 @@ ${[
 }
 
 function generateStatus({
-  metric,
+  coverage,
   targetUrl,
   statusContext,
   thresholdMetric = DEFAULT_THRESHOLD_METRIC,
 }) {
-  const { level } = metric;
-  const { rate } = metric[thresholdMetric];
+  const { rate, level } = coverage[thresholdMetric];
+
   if (level === 'red') {
     return {
       state: 'failure',

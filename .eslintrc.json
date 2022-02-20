@@ -21,6 +21,7 @@
   "rules": {
     "no-console": "off",
     "quotes": ["error", "single", {"allowTemplateLiterals": true}],
+    "max-len": ["error", {"code": 120}],
     "jest/require-hook": "off"
   }
 }
