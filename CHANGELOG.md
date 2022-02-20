@@ -16,6 +16,14 @@ Security - in case of vulnerabilities.
 
 ## [Unreleased]
 
+_TBD_
+
+## [1.3.1] 2022-02-20
+
+### Fixed
+
+- Fixed table badge to use threshold metric instead of lines rate.
+
 ### Changed
 
 - Updated comment table to hide metric row when metric not found in coverage, instead of showing `N/A`.
