@@ -12978,13 +12978,11 @@ function toNumber(value) {
 }
 
 function calcMetric(total, covered) {
-  const available = total > 0 && covered > 0;
   const rate = total
     ? toNumber(Number((covered / total) * 100).toFixed(2))
     : 0;
 
   return {
-    available,
     total,
     covered,
     rate,
@@ -13047,19 +13045,16 @@ function generateEmoji(metric) {
     : '';
 }
 
-function generateInfo({
-  available,
+function generateCommentHeader({ commentContext }) {
+  return `<!-- coverage-monitor-action: ${commentContext} -->`;
+}
+
+function generateTableRow(title, {
   rate,
   total,
   covered,
 }) {
-  return available
-    ? `${rate}% ( ${covered} / ${total} )`
-    : 'N/A';
-}
-
-function generateCommentHeader({ commentContext }) {
-  return `<!-- coverage-monitor-action: ${commentContext} -->`;
+  return total ? `| ${title}: | ${rate}% ( ${covered} / ${total} ) |\n` : '';
 }
 
 function generateTable({
@@ -13071,11 +13066,12 @@ function generateTable({
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
 | :-- | :-- |
-| Statements: | ${generateInfo(metric.statements)} |
-| Lines: | ${generateInfo(metric.lines)} |
-| Methods: | ${generateInfo(metric.methods)} |
-| Branches: | ${generateInfo(metric.branches)} |
-`;
+${[
+    generateTableRow('Statements', metric.statements),
+    generateTableRow('Methods', metric.methods),
+    generateTableRow('Lines', metric.lines),
+    generateTableRow('Branches', metric.branches),
+  ].join('')}`;
 }
 
 function generateStatus({

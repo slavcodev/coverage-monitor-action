@@ -16,7 +16,9 @@ Security - in case of vulnerabilities.
 
 ## [Unreleased]
 
-_TBD_
+### Changed
+
+- Updated comment table to hide metric row when metric not found in coverage, instead of showing `N/A`.
 
 ## [1.3.0] 2022-02-19
 
