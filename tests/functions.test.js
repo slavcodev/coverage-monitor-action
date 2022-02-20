@@ -10,23 +10,26 @@ describe('functions', () => {
           total: 34,
           covered: 24,
           rate: 70.59,
+          level: 'yellow', // < DEFAULT_THRESHOLD_WARNING
         },
         statements: {
           total: 66,
           covered: 45,
           rate: 68.18,
+          level: 'yellow', // < DEFAULT_THRESHOLD_WARNING
         },
         methods: {
           total: 12,
           covered: 10,
           rate: 83.33,
+          level: 'yellow', // < DEFAULT_THRESHOLD_WARNING
         },
         branches: {
           total: 20,
           covered: 11,
           rate: 55,
+          level: 'yellow', // < DEFAULT_THRESHOLD_WARNING
         },
-        level: 'yellow', // 79.59 < 90
       },
     },
     {
@@ -36,23 +39,26 @@ describe('functions', () => {
           total: 10,
           covered: 9,
           rate: 90,
+          level: 'green', // >= DEFAULT_THRESHOLD_WARNING
         },
         statements: {
           total: 12,
           covered: 11,
           rate: 91.67,
+          level: 'green', // >= DEFAULT_THRESHOLD_WARNING
         },
         methods: {
           total: 4,
           covered: 3,
           rate: 75,
+          level: 'yellow', // < DEFAULT_THRESHOLD_WARNING
         },
         branches: {
           total: 0,
           covered: 0,
           rate: 0,
+          level: 'red', // < DEFAULT_THRESHOLD_ALERT
         },
-        level: 'green',
       },
     },
   ];
@@ -74,35 +80,32 @@ describe('functions', () => {
         statements,
         methods,
         branches,
-        level,
       },
     }) => {
       expect.hasAssertions();
 
-      const coverage = await parser.readFile(path.join(__dirname, filename));
+      const xml = await parser.readFile(path.join(__dirname, filename));
 
-      expect(coverage).toHaveProperty('coverage');
-      expect(coverage.coverage).toHaveProperty('project');
-      expect(coverage.coverage.project).toHaveProperty('0');
-      expect(coverage.coverage.project[0]).toHaveProperty('metrics');
-      expect(coverage.coverage.project[0].metrics).toHaveProperty('0');
+      expect(xml).toHaveProperty('coverage');
+      expect(xml.coverage).toHaveProperty('project');
+      expect(xml.coverage.project).toHaveProperty('0');
+      expect(xml.coverage.project[0]).toHaveProperty('metrics');
+      expect(xml.coverage.project[0].metrics).toHaveProperty('0');
 
-      const metric = parser.readMetric(coverage);
+      const coverage = parser.readMetric(xml);
 
       ['statements', 'lines', 'methods', 'branches'].forEach((type) => {
-        expect(metric).toHaveProperty(type);
-        expect(metric[type]).toHaveProperty('total');
-        expect(metric[type]).toHaveProperty('covered');
-        expect(metric[type]).toHaveProperty('rate');
+        expect(coverage).toHaveProperty(type);
+        expect(coverage[type]).toHaveProperty('total');
+        expect(coverage[type]).toHaveProperty('covered');
+        expect(coverage[type]).toHaveProperty('rate');
+        expect(coverage[type]).toHaveProperty('level');
       });
 
-      expect(metric.lines).toStrictEqual(lines);
-      expect(metric.statements).toStrictEqual(statements);
-      expect(metric.methods).toStrictEqual(methods);
-      expect(metric.branches).toStrictEqual(branches);
-
-      expect(metric).toHaveProperty('level');
-      expect(metric.level).toBe(level);
+      expect(coverage.lines).toStrictEqual(lines);
+      expect(coverage.statements).toStrictEqual(statements);
+      expect(coverage.methods).toStrictEqual(methods);
+      expect(coverage.branches).toStrictEqual(branches);
     },
   );
 
@@ -110,50 +113,37 @@ describe('functions', () => {
     expect.hasAssertions();
 
     [
-      [49, 50, 90, 'red', 'branches'],
-      [50, 50, 90, 'yellow', 'lines'],
-      [51, 50, 90, 'yellow', 'statements'],
-      [89, 50, 90, 'yellow', 'branches'],
-      [90, 50, 90, 'green', 'methods'],
-      [91, 50, 90, 'green', 'lines'],
+      [49, 50, 90, 'red'],
+      [50, 50, 90, 'yellow'],
+      [51, 50, 90, 'yellow'],
+      [89, 50, 90, 'yellow'],
+      [90, 50, 90, 'green'],
+      [91, 50, 90, 'green'],
     ].forEach(
-      ([linesRate, thresholdAlert, thresholdWarning, level, thresholdMetric]) => {
-        const metric = { [thresholdMetric]: { rate: linesRate } };
-        const options = { thresholdAlert, thresholdWarning, thresholdMetric };
-        expect(parser.calculateLevel(metric, options)).toBe(level);
+      ([rate, thresholdAlert, thresholdWarning, level]) => {
+        expect(parser.calculateLevel({ rate }, thresholdAlert, thresholdWarning)).toBe(level);
       },
     );
   });
 
-  it('calculates default level', async () => {
-    expect.hasAssertions();
-
-    const metric = { lines: { rate: 61 } };
-    expect(parser.calculateLevel(metric)).toBe('yellow');
-  });
-
   it.each([
     {
-      thresholdMetric: undefined,
-      metric: { lines: { rate: 50 }, level: 'red' },
+      coverage: { lines: { rate: 50, level: 'red' }, threshold: { thresholdMetric: 'lines' } },
       expectedState: 'failure',
       expectedDescription: 'Error: Too low lines coverage - 50%',
     },
     {
-      thresholdMetric: 'statements',
-      metric: { statements: { rate: 50 }, level: 'yellow' },
+      coverage: { statements: { rate: 50, level: 'yellow' }, threshold: { thresholdMetric: 'statements' } },
       expectedState: 'success',
       expectedDescription: 'Warning: low statements coverage - 50%',
     },
     {
-      thresholdMetric: 'branches',
-      metric: { branches: { rate: 50 }, level: 'green' },
+      coverage: { branches: { rate: 50, level: 'green' }, threshold: { thresholdMetric: 'branches' } },
       expectedState: 'success',
       expectedDescription: 'Success: branches coverage - 50%',
     },
   ])('generates status', async ({
-    thresholdMetric,
-    metric,
+    coverage,
     expectedState,
     expectedDescription,
   }) => {
@@ -164,8 +154,7 @@ describe('functions', () => {
     expect(parser.generateStatus({
       targetUrl,
       statusContext,
-      metric,
-      thresholdMetric,
+      coverage,
     })).toStrictEqual({
       state: expectedState,
       description: expectedDescription,
@@ -177,18 +166,22 @@ describe('functions', () => {
   it('generates badge URL', async () => {
     expect.hasAssertions();
 
-    const metric = {
-      lines: { rate: 9.4 },
-      level: 'green',
+    const coverage = {
+      threshold: { thresholdAlert: 0, thresholdWarning: 1, thresholdMetric: 'lines' },
+      lines: { rate: 9.4, level: 'green' },
     };
 
-    expect(parser.generateBadgeUrl(metric)).toBe('https://img.shields.io/static/v1?label=coverage&message=9%&color=green');
+    expect(parser.generateBadgeUrl(coverage)).toBe(
+      'https://img.shields.io/static/v1?label=coverage&message=9%&color=green',
+    );
   });
 
-  it('generates emoji', async () => {
+  it.each([
+    { expected: ' 🎉', coverage: { lines: { rate: 100 }, threshold: { thresholdMetric: 'lines' } } },
+    { expected: '', coverage: { branches: { rate: 99.99 }, threshold: { thresholdMetric: 'branches' } } },
+  ])('generates emoji $expected', async ({ expected, coverage }) => {
     expect.hasAssertions();
-    expect(parser.generateEmoji({ lines: { rate: 100 } })).toBe(' 🎉');
-    expect(parser.generateEmoji({ lines: { rate: 99.99 } })).toBe('');
+    expect(parser.generateEmoji(coverage)).toBe(expected);
   });
 
   it('generates header', async () => {
@@ -200,28 +193,32 @@ describe('functions', () => {
   it('generates table', async () => {
     expect.hasAssertions();
 
-    const metric = {
+    const coverage = {
+      threshold: { thresholdAlert: 0, thresholdWarning: 50, thresholdMetric: 'lines' },
       statements: {
         total: 10,
         covered: 1,
         rate: 10,
+        level: 'yellow',
       },
       lines: {
         total: 10,
         covered: 2,
         rate: 20,
+        level: 'yellow',
       },
       methods: {
         total: 10,
         covered: 3,
         rate: 30,
+        level: 'yellow',
       },
       branches: {
         total: 10,
         covered: 4,
         rate: 40,
+        level: 'yellow',
       },
-      level: 'yellow',
     };
 
     const expectedString = `<!-- coverage-monitor-action: Coverage Report -->
@@ -235,47 +232,51 @@ describe('functions', () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toBe(expectedString);
+    expect(parser.generateTable({ coverage, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
   it('hides metric rows in table when metric is not available (total is zero)', async () => {
     expect.hasAssertions();
 
-    const metric = {
+    const coverage = {
+      threshold: { thresholdAlert: 30, thresholdWarning: 50, thresholdMetric: 'branches' },
       statements: {
         total: 10,
         covered: 1,
         rate: 10,
+        level: 'red',
       },
       lines: {
         total: 10,
         covered: 2,
         rate: 20,
+        level: 'red',
       },
       methods: {
         total: 0,
         covered: 0,
         rate: 0,
+        level: 'red',
       },
       branches: {
         total: 10,
         covered: 4,
         rate: 40,
+        level: 'yellow',
       },
-      level: 'yellow',
     };
 
     const expectedString = `<!-- coverage-monitor-action: Coverage Report -->
 ## Coverage Report
 
-|  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=20%&color=yellow) |
+|  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=40%&color=yellow) |
 | :-- | :-- |
 | Statements: | 10% ( 1 / 10 ) |
 | Lines: | 20% ( 2 / 10 ) |
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(parser.generateTable({ metric, commentContext: 'Coverage Report' })).toBe(expectedString);
+    expect(parser.generateTable({ coverage, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
   function createConfigReader(inputs) {

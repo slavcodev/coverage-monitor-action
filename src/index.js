@@ -44,8 +44,10 @@ async function run() {
 
   const client = github.getOctokit(githubToken).rest;
 
-  const coverage = await readFile(cloverFile);
-  const metric = readMetric(coverage, { thresholdAlert, thresholdWarning, thresholdMetric });
+  const coverage = readMetric(
+    await readFile(cloverFile),
+    { thresholdAlert, thresholdWarning, thresholdMetric },
+  );
 
   if (check) {
     await createStatus({
@@ -54,15 +56,14 @@ async function run() {
       sha,
       status: generateStatus({
         targetUrl: prUrl,
-        metric,
+        coverage,
         statusContext,
-        thresholdMetric,
       }),
     });
   }
 
   if (comment) {
-    const message = generateTable({ metric, commentContext });
+    const message = generateTable({ coverage, commentContext });
 
     switch (commentMode) {
       case 'insert':

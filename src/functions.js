@@ -33,25 +33,7 @@ function toNumber(value) {
   return value * 1;
 }
 
-function calcMetric(total, covered) {
-  const rate = total
-    ? toNumber(Number((covered / total) * 100).toFixed(2))
-    : 0;
-
-  return {
-    total,
-    covered,
-    rate,
-  };
-}
-
-function calculateLevel(metric, {
-  thresholdAlert = DEFAULT_THRESHOLD_ALERT,
-  thresholdWarning = DEFAULT_THRESHOLD_WARNING,
-  thresholdMetric = DEFAULT_THRESHOLD_METRIC,
-} = {}) {
-  const { rate } = metric[thresholdMetric];
-
+function calculateLevel({ rate }, thresholdAlert, thresholdWarning) {
   if (rate < thresholdAlert) {
     return 'red';
   }
@@ -63,7 +45,22 @@ function calculateLevel(metric, {
   return 'green';
 }
 
-function readMetric(coverage, {
+function calcMetric(total, covered, thresholdAlert, thresholdWarning) {
+  const rate = total
+    ? toNumber(Number((covered / total) * 100).toFixed(2))
+    : 0;
+
+  const level = calculateLevel({ rate }, thresholdAlert, thresholdWarning);
+
+  return {
+    total,
+    covered,
+    rate,
+    level,
+  };
+}
+
+function readMetric(xml, {
   thresholdAlert = DEFAULT_THRESHOLD_ALERT,
   thresholdWarning = DEFAULT_THRESHOLD_WARNING,
   thresholdMetric = DEFAULT_THRESHOLD_METRIC,
@@ -77,28 +74,27 @@ function readMetric(coverage, {
     coveredmethods,
     conditionals,
     coveredconditionals,
-  } = coverage.coverage.project[0].metrics[0].$;
+  } = xml.coverage.project[0].metrics[0].$;
 
-  const metric = {
-    statements: calcMetric(toNumber(elements), toNumber(coveredelements)),
-    lines: calcMetric(toNumber(statements), toNumber(coveredstatements)),
-    methods: calcMetric(toNumber(methods), toNumber(coveredmethods)),
-    branches: calcMetric(toNumber(conditionals), toNumber(coveredconditionals)),
+  return {
+    threshold: { thresholdAlert, thresholdWarning, thresholdMetric },
+    statements: calcMetric(toNumber(elements), toNumber(coveredelements), thresholdAlert, thresholdWarning),
+    lines: calcMetric(toNumber(statements), toNumber(coveredstatements), thresholdAlert, thresholdWarning),
+    methods: calcMetric(toNumber(methods), toNumber(coveredmethods), thresholdAlert, thresholdWarning),
+    branches: calcMetric(toNumber(conditionals), toNumber(coveredconditionals), thresholdAlert, thresholdWarning),
   };
-
-  metric.level = calculateLevel(metric, { thresholdAlert, thresholdWarning, thresholdMetric });
-
-  return metric;
 }
 
-function generateBadgeUrl(metric) {
-  return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(metric.lines.rate)}%&color=${metric.level}`;
+function generateBadgeUrl(coverage) {
+  const { rate, level } = coverage[coverage.threshold.thresholdMetric];
+
+  return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate)}%&color=${level}`;
 }
 
-function generateEmoji(metric) {
-  return metric.lines.rate === 100
-    ? ' 🎉'
-    : '';
+function generateEmoji(coverage) {
+  const { rate } = coverage[coverage.threshold.thresholdMetric];
+
+  return rate === 100 ? ' 🎉' : '';
 }
 
 function generateCommentHeader({ commentContext }) {
@@ -114,34 +110,33 @@ function generateTableRow(title, {
 }
 
 function generateTable({
-  metric,
+  coverage,
   commentContext,
 }) {
   return `${generateCommentHeader({ commentContext })}
-## ${commentContext}${generateEmoji(metric)}
+## ${commentContext}${generateEmoji(coverage)}
 
-|  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
+|  Totals | ![Coverage](${generateBadgeUrl(coverage)}) |
 | :-- | :-- |
 ${[
-    generateTableRow('Statements', metric.statements),
-    generateTableRow('Methods', metric.methods),
-    generateTableRow('Lines', metric.lines),
-    generateTableRow('Branches', metric.branches),
+    generateTableRow('Statements', coverage.statements),
+    generateTableRow('Methods', coverage.methods),
+    generateTableRow('Lines', coverage.lines),
+    generateTableRow('Branches', coverage.branches),
   ].join('')}`;
 }
 
 function generateStatus({
-  metric,
+  coverage,
   targetUrl,
   statusContext,
-  thresholdMetric = DEFAULT_THRESHOLD_METRIC,
 }) {
-  const { level } = metric;
-  const { rate } = metric[thresholdMetric];
+  const { rate, level } = coverage[coverage.threshold.thresholdMetric];
+
   if (level === 'red') {
     return {
       state: 'failure',
-      description: `Error: Too low ${thresholdMetric} coverage - ${rate}%`,
+      description: `Error: Too low ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     };
@@ -150,7 +145,7 @@ function generateStatus({
   if (level === 'yellow') {
     return {
       state: 'success',
-      description: `Warning: low ${thresholdMetric} coverage - ${rate}%`,
+      description: `Warning: low ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
       target_url: targetUrl,
       context: statusContext,
     };
@@ -158,7 +153,7 @@ function generateStatus({
 
   return {
     state: 'success',
-    description: `Success: ${thresholdMetric} coverage - ${rate}%`,
+    description: `Success: ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
     target_url: targetUrl,
     context: statusContext,
   };
