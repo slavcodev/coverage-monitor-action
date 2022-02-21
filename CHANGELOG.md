@@ -19,6 +19,8 @@ Security - in case of vulnerabilities.
 ### Added
 
 - Added `working_dir` string property, the working directory for the action. Defaults to workflow workspace.
+- Allowed the action in other context, not only `pull_request`. In other word, the coverage will always be analyzed,
+but the `check` and `comment` will be posted only on `pull_request`.
 
 ### Changed
 
