@@ -4,5 +4,7 @@ module.exports = {
   collectCoverage: true,
   coverageDirectory: '.coverage',
   coveragePathIgnorePatterns: ['tests'],
-  coverageReporters: ['clover', 'html', 'json', 'text'],
+  // https://istanbul.js.org/docs/advanced/alternative-reporters/
+  // coverageReporters: ['clover', 'html', 'json-summary', 'json', 'cobertura', 'teamcity', 'text-summary', 'text'],
+  coverageReporters: ['clover', 'html'],
 };
