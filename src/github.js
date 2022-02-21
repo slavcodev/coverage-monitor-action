@@ -108,25 +108,25 @@ const replaceComment = async ({
 };
 
 function parseWebhook(request) {
-  const {
-    payload: {
-      pull_request: {
-        number: prNumber,
-        html_url: prUrl,
-        head: { sha } = {},
-      } = {},
-    } = {},
-  } = request || {};
+  const { payload } = request || {};
 
-  if (!prNumber || !prUrl || !sha) {
-    throw new Error('Action supports only pull_request event');
+  if (!payload) {
+    throw new Error('Invalid github event');
   }
 
-  return {
-    prNumber,
-    prUrl,
-    sha,
-  };
+  const { pull_request: pr } = payload;
+
+  if (pr) {
+    const { number, html_url: url, head: { sha } = {} } = pr;
+
+    if (!number || !url || !sha) {
+      throw new Error('Invalid pull_request event');
+    }
+
+    return { pr: { number, url, sha } };
+  }
+
+  return { pr: undefined };
 }
 
 module.exports = {
