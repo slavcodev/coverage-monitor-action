@@ -10,6 +10,10 @@ inputs:
   clover_file:
     description: "Path to Clover XML file."
     required: true
+  working_dir:
+    description: "The working directory of the action. Defaults to workflow workspace."
+    required: false
+    default: ''
   check:
     description: "Whether check the coverage thresholds."
     required: false

@@ -28,6 +28,7 @@ The action works only with `pull_request` event.
 | :-- | :-- |
 | `github_token` | Required. The GITHUB_TOKEN secret. |
 | `clover_file` | Required. Path to Clover XML file. |
+| `working_dir` | The working directory of the action. Defaults to workflow workspace. |
 | `check` | Whether check the coverage thresholds. Default to `true`. |
 | `comment` | Whether comment the coverage report. Default to `true`. |
 | `threshold_alert` | Mark the build as unstable when coverage is less than this threshold. Default to `50`. |
