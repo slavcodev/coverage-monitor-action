@@ -6,16 +6,6 @@ function toBool(value) {
     : value === 'true';
 }
 
-function readCoverage(report, threshold) {
-  return {
-    threshold,
-    statements: { ...report.metrics.statements, rate: report.metrics.statements.rate / 100 },
-    lines: { ...report.metrics.lines, rate: report.metrics.lines.rate / 100 },
-    methods: { ...report.metrics.methods, rate: report.metrics.methods.rate / 100 },
-    branches: { ...report.metrics.branches, rate: report.metrics.branches.rate / 100 },
-  };
-}
-
 function generateBadgeUrl({ rate, level }) {
   return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate / 100)}%&color=${level}`;
 }
@@ -145,7 +135,6 @@ function parseWebhook(request) {
 }
 
 module.exports = {
-  readCoverage,
   generateBadgeUrl,
   generateEmoji,
   generateTable,
