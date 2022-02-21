@@ -14,14 +14,6 @@ inputs:
     description: "The working directory of the action. Defaults to workflow workspace."
     required: false
     default: ''
-  check:
-    description: "Whether check the coverage thresholds."
-    required: false
-    default: 'true'
-  comment:
-    description: "Whether comment the coverage report."
-    required: false
-    default: 'true'
   threshold_alert:
     description: "Mark the build as unstable when coverage is less than this threshold."
     required: false
@@ -34,10 +26,18 @@ inputs:
     description: "A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`."
     required: false
     default: 'lines'
+  check:
+    description: "Whether check the coverage thresholds."
+    required: false
+    default: 'true'
   status_context:
     description: "A string label to differentiate this status from the status of other systems."
     required: false
     default: 'Coverage Report'
+  comment:
+    description: "Whether comment the coverage report."
+    required: false
+    default: 'true'
   comment_context:
     description: "A string label to differentiate the comment posted by this action."
     required: false
