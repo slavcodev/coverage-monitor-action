@@ -28,8 +28,8 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 | `github_token` | Required. The GITHUB_TOKEN secret. |
 | `clover_file` | Required. Path to Clover XML file. |
 | `working_dir` | The working directory of the action. Defaults to workflow workspace. |
-| `check` | Whether check the coverage thresholds. Default to `true`. Ignored when event is not `pull_request` and the checking skipped. |
-| `comment` | Whether comment the coverage report. Default to `true`. Ignored when event is not `pull_request` and the commenting skipped. |
+| `check` | Whether check the coverage thresholds. Default to `true`. Ignored when event does not support checks, is not `pull_request`. |
+| `comment` | Whether comment the coverage report. Default to `true`. Ignored when event does not support comments, is not `pull_request`. |
 | `threshold_alert` | Mark the build as unstable when coverage is less than this threshold. Default to `50`. |
 | `threshold_warning` | Warning when coverage is less than this threshold. Default to `90`. |
 | `threshold_metric` | A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`. Default to `lines`. |
