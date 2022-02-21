@@ -6,5 +6,5 @@ module.exports = {
   coveragePathIgnorePatterns: ['tests'],
   // https://istanbul.js.org/docs/advanced/alternative-reporters/
   // coverageReporters: ['clover', 'html', 'json-summary', 'json', 'cobertura', 'teamcity', 'text-summary', 'text'],
-  coverageReporters: ['clover', 'html'],
+  coverageReporters: ['clover', 'json-summary', 'html'],
 };

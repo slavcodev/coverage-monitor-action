@@ -1,3 +1,5 @@
+const { formats } = require('./consts');
+
 function toBool(value, def) {
   if (typeof value === 'boolean') {
     return value;
@@ -27,8 +29,11 @@ function getWorkingDirectory() {
 
 function loadConfig({ getInput }) {
   const githubToken = getInput('github_token', { required: true });
-  const cloverFile = getInput('clover_file', { required: true });
   const workingDir = getInput('working_dir') || getWorkingDirectory();
+
+  const cloverFile = getInput('clover_file');
+  const coveragePath = getInput('coverage_path') || cloverFile;
+  const coverageFormat = getInput('coverage_format') || formats.FORMAT_AUTO;
 
   const thresholdAlert = toBips(getInput('threshold_alert'), 5000);
   const thresholdWarning = toBips(getInput('threshold_warning'), 9000);
@@ -45,9 +50,24 @@ function loadConfig({ getInput }) {
     commentMode = 'replace';
   }
 
+  if (cloverFile && coveragePath !== cloverFile) {
+    throw new Error('The `clover_file` option is deprecated and cannot be set along with `coverage_path`');
+  }
+
+  if (!coveragePath) {
+    throw new Error('Missing or invalid option `coverage_path`');
+  }
+
+  if (!Object.values(formats).includes(coverageFormat)) {
+    throw new Error(
+      `Invalid option \`coverage_format\` - supported ${Object.values(formats).join(', ')}`,
+    );
+  }
+
   return {
     githubToken,
-    cloverFile,
+    coveragePath,
+    coverageFormat,
     workingDir,
     threshold: {
       alert: thresholdAlert,

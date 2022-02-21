@@ -38,8 +38,18 @@ jobs:
       - run: npm run lint
 
       - name: Monitor coverage
-        id: coverage-monitor
+        id: coverage-monitor-clover
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          clover_file: ".coverage/clover.xml"
+          coverage_path: ".coverage/clover.xml"
+          comment_context: "Coverage from clover"
+
+      - name: Monitor coverage
+        id: coverage-monitor-json
+        uses: ./
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          coverage_path: ".coverage/coverage-summary.json"
+          comment_context: "Coverage from json-summary"
+          check: false
