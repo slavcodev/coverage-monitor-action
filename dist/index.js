@@ -14880,7 +14880,7 @@ function wrappy (fn, cb) {
 function generateStatus({
   report: { metrics, threshold: { metric } },
   targetUrl,
-  statusContext,
+  context,
 }) {
   const { rate, level } = metrics[metric];
 
@@ -14889,7 +14889,7 @@ function generateStatus({
       state: 'failure',
       description: `Error: Too low ${metric} coverage - ${rate / 100}%`,
       target_url: targetUrl,
-      context: statusContext,
+      context,
     };
   }
 
@@ -14898,7 +14898,7 @@ function generateStatus({
       state: 'success',
       description: `Warning: low ${metric} coverage - ${rate / 100}%`,
       target_url: targetUrl,
-      context: statusContext,
+      context,
     };
   }
 
@@ -14906,7 +14906,7 @@ function generateStatus({
     state: 'success',
     description: `Success: ${metric} coverage - ${rate / 100}%`,
     target_url: targetUrl,
-    context: statusContext,
+    context,
   };
 }
 
@@ -14928,8 +14928,8 @@ function generateEmoji({ rate }) {
   return rate === 10000 ? ' 🎉' : '';
 }
 
-function generateCommentHeader({ commentContext }) {
-  return `<!-- coverage-monitor-action: ${commentContext} -->`;
+function generateCommentHeader({ context }) {
+  return `<!-- coverage-monitor-action: ${context} -->`;
 }
 
 function generateTableRow(title, {
@@ -14942,12 +14942,12 @@ function generateTableRow(title, {
 
 function generateTable({
   report,
-  commentContext,
+  context,
 }) {
   const metric = report.metrics[report.threshold.metric];
 
-  return `${generateCommentHeader({ commentContext })}
-## ${commentContext}${generateEmoji(metric)}
+  return `${generateCommentHeader({ context })}
+## ${context}${generateEmoji(metric)}
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
 | :-- | :-- |
@@ -14972,10 +14972,27 @@ module.exports = {
 /***/ 4570:
 /***/ ((module) => {
 
-function toBool(value) {
-  return typeof value === 'boolean'
-    ? value
-    : value === 'true';
+function toBool(value, def) {
+  if (typeof value === 'boolean') {
+    return value;
+  }
+
+  switch (`${value}`.toLowerCase()) {
+    case 'true':
+    case 'on':
+    case 'yes':
+      return true;
+    case 'false':
+    case 'off':
+    case 'no':
+      return false;
+    default:
+      return def;
+  }
+}
+
+function toBips(value, def) {
+  return Math.round(Number(value) * 100) || def;
 }
 
 function getWorkingDirectory() {
@@ -14983,38 +15000,61 @@ function getWorkingDirectory() {
 }
 
 function loadConfig({ getInput }) {
-  const comment = toBool(getInput('comment'));
-  const check = toBool(getInput('check'));
   const githubToken = getInput('github_token', { required: true });
-  const cloverFile = getInput('clover_file', { required: true });
   const workingDir = getInput('working_dir') || getWorkingDirectory();
-  const thresholdAlert = Number(getInput('threshold_alert') || 90);
-  const thresholdWarning = Number(getInput('threshold_warning') || 50);
+
+  const cloverFile = getInput('clover_file');
+  const coveragePath = getInput('coverage_path') || cloverFile;
+  const coverageFormat = getInput('coverage_format') || 'auto';
+
+  const thresholdAlert = toBips(getInput('threshold_alert'), 5000);
+  const thresholdWarning = toBips(getInput('threshold_warning'), 9000);
+  const thresholdMetric = getInput('threshold_metric') || 'lines';
+
+  const check = toBool(getInput('check'), true);
   const statusContext = getInput('status_context') || 'Coverage Report';
+
+  const comment = toBool(getInput('comment'), true);
   const commentContext = getInput('comment_context') || 'Coverage Report';
   let commentMode = getInput('comment_mode');
-  let thresholdMetric = getInput('threshold_metric') || 'lines';
 
   if (!['replace', 'update', 'insert'].includes(commentMode)) {
     commentMode = 'replace';
   }
 
-  if (!['statements', 'lines', 'methods', 'branches'].includes(thresholdMetric)) {
-    thresholdMetric = 'lines';
+  if (cloverFile && coveragePath !== cloverFile) {
+    throw new Error('The `clover_file` option is deprecated and cannot be set along with `coverage_path`');
+  }
+
+  if (!coveragePath) {
+    throw new Error('Missing or invalid option `coverage_path`');
+  }
+
+  if (!['auto', 'clover', 'json-summary'].includes(coverageFormat)) {
+    throw new Error('Invalid option `coverage_format`, supported `clover` and `json-summary`');
   }
 
   return {
-    comment,
-    check,
     githubToken,
-    cloverFile,
+    coveragePath,
+    coverageFormat,
     workingDir,
-    thresholdAlert,
-    thresholdWarning,
-    thresholdMetric,
-    statusContext,
-    commentContext,
-    commentMode,
+    threshold: {
+      alert: thresholdAlert,
+      warning: thresholdWarning,
+      metric: ['statements', 'lines', 'methods', 'branches'].includes(thresholdMetric)
+        ? thresholdMetric
+        : 'lines',
+    },
+    comment: comment
+      ? {
+        context: commentContext,
+        mode: commentMode,
+      }
+      : undefined,
+    check: check
+      ? { context: statusContext }
+      : undefined,
   };
 }
 
@@ -15514,14 +15554,9 @@ async function run() {
     comment,
     check,
     githubToken,
-    cloverFile,
+    coveragePath,
     workingDir,
-    thresholdAlert,
-    thresholdWarning,
-    thresholdMetric,
-    statusContext,
-    commentContext,
-    commentMode,
+    threshold,
   } = loadConfig(core);
 
   const { context = {} } = github || {};
@@ -15532,13 +15567,7 @@ async function run() {
     console.log(context);
   }
 
-  const threshold = {
-    metric: thresholdMetric,
-    alert: parseInt(thresholdAlert * 100, 10),
-    warning: parseInt(thresholdWarning * 100, 10),
-  };
-
-  const report = generateReport(threshold, await parseFile(workingDir, cloverFile));
+  const report = generateReport(threshold, await parseFile(workingDir, coveragePath));
 
   if (pr) {
     const client = github.getOctokit(githubToken).rest;
@@ -15551,15 +15580,15 @@ async function run() {
         status: generateStatus({
           report,
           targetUrl: pr.url,
-          statusContext,
+          ...check,
         }),
       });
     }
 
     if (comment) {
-      const message = generateTable({ report, commentContext });
+      const message = generateTable({ report, ...comment });
 
-      switch (commentMode) {
+      switch (comment.mode) {
         case 'insert':
           await insertComment({
             client,
@@ -15579,7 +15608,7 @@ async function run() {
               client,
               context,
               prNumber: pr.number,
-              commentHeader: generateCommentHeader({ commentContext }),
+              commentHeader: generateCommentHeader({ ...comment }),
             }),
           });
 
@@ -15595,8 +15624,7 @@ async function run() {
               client,
               context,
               prNumber: pr.number,
-              commentContext,
-              commentHeader: generateCommentHeader({ commentContext }),
+              commentHeader: generateCommentHeader({ ...comment }),
             }),
           });
       }

@@ -7,9 +7,20 @@ inputs:
   github_token:
     description: "The GITHUB_TOKEN secret."
     required: true
+  coverage_path:
+    description: "Path to coverage reports."
+    required: false
+  coverage_format:
+    description: |
+      Format of coverage, supported: `clover` and `json-summary`.
+      If not set the action will try to guess the format, by file extension, name and eventually by content.
+    required: false
+    default: 'auto'
   clover_file:
-    description: "Path to Clover XML file."
-    required: true
+    description: |
+      Path to Clover XML file. This option is deprecated, replaced with `coverage_path`.
+      If both `clover_file` and `coverage_path` are set, the action will fail.
+    required: false
   working_dir:
     description: "The working directory of the action. Defaults to workflow workspace."
     required: false

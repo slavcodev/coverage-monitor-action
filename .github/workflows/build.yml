@@ -42,4 +42,4 @@ jobs:
         uses: ./
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          clover_file: ".coverage/clover.xml"
+          coverage_path: ".coverage/clover.xml"

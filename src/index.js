@@ -19,7 +19,7 @@ async function run() {
     comment,
     check,
     githubToken,
-    cloverFile,
+    coveragePath,
     workingDir,
     threshold,
   } = loadConfig(core);
@@ -32,7 +32,7 @@ async function run() {
     console.log(context);
   }
 
-  const report = generateReport(threshold, await parseFile(workingDir, cloverFile));
+  const report = generateReport(threshold, await parseFile(workingDir, coveragePath));
 
   if (pr) {
     const client = github.getOctokit(githubToken).rest;
