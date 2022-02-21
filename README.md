@@ -25,9 +25,11 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 
 | Options | Description |
 | :-- | :-- |
-| `github_token` | Required. The GITHUB_TOKEN secret. |
-| `clover_file` | Required. Path to Clover XML file. |
+| `github_token` | **Required.** The GITHUB_TOKEN secret. |
+| `coverage_path` | **Required.** Path to coverage reports. |
+| `coverage_format` | Format of coverage, supported: `auto`, `clover` and `json-summary`. Defaults to `auto`. |
 | `working_dir` | The working directory of the action. Defaults to workflow workspace. |
+| `clover_file` | **Deprecated.** Path to Clover XML file. |
 | `threshold_alert` | Mark the build as unstable when coverage is less than this threshold. Default to `50`. |
 | `threshold_warning` | Warning when coverage is less than this threshold. Default to `90`. |
 | `threshold_metric` | A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`. Default to `lines`. |
@@ -56,7 +58,7 @@ jobs:
         uses: slavcodev/coverage-monitor-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          clover_file: "logs/clover.xml"
+          coverage_path: "logs/clover.xml"
           threshold_alert: 10
           threshold_warning: 50
           threshold_metric: "lines"
@@ -83,7 +85,7 @@ jobs:
         uses: slavcodev/coverage-monitor-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          clover_file: "logs/clover.xml"
+          coverage_path: "logs/clover.xml"
 ~~~
 
 ## Preview

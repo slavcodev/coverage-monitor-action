@@ -16,11 +16,17 @@ Security - in case of vulnerabilities.
 
 ## [Unreleased]
 
+### Deprecated
+
+- Deprecated the option `clover_file`, replaced with `coverage_path`.
+
 ### Added
 
 - Added `working_dir` string property, the working directory for the action. Defaults to workflow workspace.
 - Allowed the action in other context, not only `pull_request`. In other word, the coverage will always be analyzed,
 but the `check` and `comment` will be posted only on `pull_request`.
+- Added two new options `coverage_path` and `coverage_format`.
+- Added support of coverage file generated [`json-summary` Istanbul's reporter](https://istanbul.js.org/docs/advanced/alternative-reporters/#json-summary).
 
 ### Changed
 
