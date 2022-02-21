@@ -20,6 +20,7 @@ async function run() {
     check,
     githubToken,
     coveragePath,
+    coverageFormat,
     workingDir,
     threshold,
   } = loadConfig(core);
@@ -32,7 +33,7 @@ async function run() {
     console.log(context);
   }
 
-  const report = generateReport(threshold, await parseFile(workingDir, coveragePath));
+  const report = generateReport(threshold, await parseFile(workingDir, coveragePath, coverageFormat));
 
   if (pr) {
     const client = github.getOctokit(githubToken).rest;

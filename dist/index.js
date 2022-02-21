@@ -14970,7 +14970,9 @@ module.exports = {
 /***/ }),
 
 /***/ 4570:
-/***/ ((module) => {
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const { formats } = __nccwpck_require__(4631);
 
 function toBool(value, def) {
   if (typeof value === 'boolean') {
@@ -15005,7 +15007,7 @@ function loadConfig({ getInput }) {
 
   const cloverFile = getInput('clover_file');
   const coveragePath = getInput('coverage_path') || cloverFile;
-  const coverageFormat = getInput('coverage_format') || 'auto';
+  const coverageFormat = getInput('coverage_format') || formats.FORMAT_AUTO;
 
   const thresholdAlert = toBips(getInput('threshold_alert'), 5000);
   const thresholdWarning = toBips(getInput('threshold_warning'), 9000);
@@ -15030,8 +15032,10 @@ function loadConfig({ getInput }) {
     throw new Error('Missing or invalid option `coverage_path`');
   }
 
-  if (!['auto', 'clover', 'json-summary'].includes(coverageFormat)) {
-    throw new Error('Invalid option `coverage_format`, supported `clover` and `json-summary`');
+  if (!Object.values(formats).includes(coverageFormat)) {
+    throw new Error(
+      `Invalid option \`coverage_format\` - supported ${Object.values(formats).join(', ')}`,
+    );
   }
 
   return {
@@ -15065,20 +15069,58 @@ module.exports = {
 
 /***/ }),
 
+/***/ 4631:
+/***/ ((module) => {
+
+const FORMAT_AUTO = 'auto';
+const FORMAT_CLOVER = 'clover';
+const FORMAT_JSON_SUMMARY = 'json-summary';
+
+module.exports = {
+  formats: { FORMAT_AUTO, FORMAT_CLOVER, FORMAT_JSON_SUMMARY },
+};
+
+
+/***/ }),
+
 /***/ 9110:
 /***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
 
 const fs = __nccwpck_require__(3292);
 const path = __nccwpck_require__(1017);
 const { parseCloverXml } = __nccwpck_require__(193);
+const { parseJsonSummary } = __nccwpck_require__(767);
+const { formats } = __nccwpck_require__(4631);
 
 async function readFile(workingDir, filename) {
   // TODO: `.replace('\ufeff', ''))`
   return fs.readFile(path.join(workingDir, filename), { encoding: 'utf-8' });
 }
 
-async function parseFile(workingDir, filename) {
-  return parseCloverXml(await readFile(workingDir, filename));
+function guessFormat(filename) {
+  switch (filename.substring(filename.lastIndexOf('.') + 1)) {
+    case 'xml':
+      return formats.FORMAT_CLOVER;
+    case 'json':
+      return formats.FORMAT_JSON_SUMMARY;
+    default:
+      throw new Error(`Cannot guess format of "${filename}"`);
+  }
+}
+
+async function parseFile(workingDir, filename, format) {
+  switch (format) {
+    case formats.FORMAT_AUTO:
+      return parseFile(workingDir, filename, guessFormat(filename));
+    case formats.FORMAT_CLOVER:
+      return parseCloverXml(await readFile(workingDir, filename));
+    case formats.FORMAT_JSON_SUMMARY:
+      return parseJsonSummary(await readFile(workingDir, filename));
+    default:
+      throw new Error(
+        `Invalid option \`coverage_format\` - supported ${Object.values(formats).join(', ')}`,
+      );
+  }
 }
 
 module.exports = {
@@ -15231,6 +15273,31 @@ module.exports = {
   upsertComment,
   replaceComment,
   parseWebhook,
+};
+
+
+/***/ }),
+
+/***/ 767:
+/***/ ((module) => {
+
+async function parseJsonFile(buffer) {
+  return JSON.parse(buffer);
+}
+
+async function parseJsonSummary(buffer) {
+  const { total } = (await parseJsonFile(buffer));
+
+  return {
+    statements: { total: Number(total.statements.total), covered: Number(total.statements.covered) },
+    lines: { total: Number(total.lines.total), covered: Number(total.lines.covered) },
+    methods: { total: Number(total.functions.total), covered: Number(total.functions.covered) },
+    branches: { total: Number(total.branches.total), covered: Number(total.branches.covered) },
+  };
+}
+
+module.exports = {
+  parseJsonSummary,
 };
 
 
@@ -15555,6 +15622,7 @@ async function run() {
     check,
     githubToken,
     coveragePath,
+    coverageFormat,
     workingDir,
     threshold,
   } = loadConfig(core);
@@ -15567,7 +15635,7 @@ async function run() {
     console.log(context);
   }
 
-  const report = generateReport(threshold, await parseFile(workingDir, coveragePath));
+  const report = generateReport(threshold, await parseFile(workingDir, coveragePath, coverageFormat));
 
   if (pr) {
     const client = github.getOctokit(githubToken).rest;
