@@ -1,6 +1,9 @@
+const path = require('path');
 const { loadConfig } = require('../src/config');
 
 describe(`${loadConfig.name}`, () => {
+  const workingDir = path.join(__dirname, '..');
+
   function createConfigReader(inputs) {
     return {
       getInput(name) {
@@ -22,6 +25,7 @@ describe(`${loadConfig.name}`, () => {
       check: false,
       githubToken: '***',
       cloverFile: 'clover.xml',
+      workingDir: 'foo',
       thresholdAlert: 10,
       thresholdWarning: 20,
       thresholdMetric: 'branches',
@@ -49,6 +53,7 @@ describe(`${loadConfig.name}`, () => {
       check: false,
       githubToken: '***',
       cloverFile: 'clover.xml',
+      workingDir,
       thresholdAlert: 90,
       thresholdWarning: 50,
       thresholdMetric: 'lines',
@@ -84,6 +89,7 @@ describe(`${loadConfig.name}`, () => {
       check: false,
       githubToken: '***',
       cloverFile: 'clover.xml',
+      workingDir,
       thresholdAlert: 10,
       thresholdWarning: 20,
       thresholdMetric: 'branches',
@@ -112,6 +118,7 @@ describe(`${loadConfig.name}`, () => {
       check: false,
       githubToken: '***',
       cloverFile: 'clover.xml',
+      workingDir,
       thresholdAlert: 90,
       thresholdWarning: 50,
       thresholdMetric: 'lines',
@@ -141,6 +148,7 @@ describe(`${loadConfig.name}`, () => {
       check: false,
       githubToken: '***',
       cloverFile: 'clover.xml',
+      workingDir,
       thresholdAlert: 90,
       thresholdWarning: 50,
       thresholdMetric: 'lines',

@@ -16,6 +16,10 @@ Security - in case of vulnerabilities.
 
 ## [Unreleased]
 
+### Added
+
+- Added `working_dir` string property, the working directory for the action. Defaults to workflow workspace.
+
 ### Changed
 
 - Migrated action to Node.js v16.

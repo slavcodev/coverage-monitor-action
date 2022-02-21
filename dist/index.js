@@ -14978,11 +14978,16 @@ function toBool(value) {
     : value === 'true';
 }
 
+function getWorkingDirectory() {
+  return process.env.GITHUB_WORKSPACE || process.cwd();
+}
+
 function loadConfig({ getInput }) {
   const comment = toBool(getInput('comment'));
   const check = toBool(getInput('check'));
   const githubToken = getInput('github_token', { required: true });
   const cloverFile = getInput('clover_file', { required: true });
+  const workingDir = getInput('working_dir') || getWorkingDirectory();
   const thresholdAlert = Number(getInput('threshold_alert') || 90);
   const thresholdWarning = Number(getInput('threshold_warning') || 50);
   const statusContext = getInput('status_context') || 'Coverage Report';
@@ -15003,6 +15008,7 @@ function loadConfig({ getInput }) {
     check,
     githubToken,
     cloverFile,
+    workingDir,
     thresholdAlert,
     thresholdWarning,
     thresholdMetric,
@@ -15489,7 +15495,6 @@ var __webpack_exports__ = {};
 (() => {
 const core = __nccwpck_require__(2186);
 const github = __nccwpck_require__(5438);
-const path = __nccwpck_require__(1017);
 const { loadConfig } = __nccwpck_require__(4570);
 const { generateStatus } = __nccwpck_require__(9546);
 const { generateTable, generateCommentHeader } = __nccwpck_require__(4975);
@@ -15510,6 +15515,7 @@ async function run() {
     check,
     githubToken,
     cloverFile,
+    workingDir,
     thresholdAlert,
     thresholdWarning,
     thresholdMetric,
@@ -15517,8 +15523,6 @@ async function run() {
     commentContext,
     commentMode,
   } = loadConfig(core);
-
-  const workingDir = path.join(__dirname, '..');
 
   if (!check && !comment) {
     return;

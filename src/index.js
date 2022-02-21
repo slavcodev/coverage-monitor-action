@@ -1,6 +1,5 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const path = require('path');
 const { loadConfig } = require('./config');
 const { generateStatus } = require('./checks');
 const { generateTable, generateCommentHeader } = require('./comments');
@@ -21,6 +20,7 @@ async function run() {
     check,
     githubToken,
     cloverFile,
+    workingDir,
     thresholdAlert,
     thresholdWarning,
     thresholdMetric,
@@ -28,8 +28,6 @@ async function run() {
     commentContext,
     commentMode,
   } = loadConfig(core);
-
-  const workingDir = path.join(__dirname, '..');
 
   if (!check && !comment) {
     return;
