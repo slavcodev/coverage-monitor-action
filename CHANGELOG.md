@@ -16,6 +16,10 @@ Security - in case of vulnerabilities.
 
 ## [Unreleased]
 
+_TBD_
+
+## [1.4.0] 2022-02-21
+
 ### Deprecated
 
 - Deprecated the option `clover_file`, replaced with `coverage_path`.
