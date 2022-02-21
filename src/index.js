@@ -29,18 +29,13 @@ async function run() {
     commentMode,
   } = loadConfig(core);
 
-  if (!check && !comment) {
-    return;
-  }
   const { context = {} } = github || {};
-  const { prNumber, prUrl, sha } = parseWebhook(context);
+  const { pr } = parseWebhook(context);
 
   if (core.isDebug()) {
     core.debug('Handle webhook request');
     console.log(context);
   }
-
-  const client = github.getOctokit(githubToken).rest;
 
   const threshold = {
     metric: thresholdMetric,
@@ -50,62 +45,66 @@ async function run() {
 
   const report = generateReport(threshold, await parseFile(workingDir, cloverFile));
 
-  if (check) {
-    await createStatus({
-      client,
-      context,
-      sha,
-      status: generateStatus({
-        report,
-        targetUrl: prUrl,
-        statusContext,
-      }),
-    });
-  }
+  if (pr) {
+    const client = github.getOctokit(githubToken).rest;
 
-  if (comment) {
-    const message = generateTable({ report, commentContext });
+    if (check) {
+      await createStatus({
+        client,
+        context,
+        sha: pr.sha,
+        status: generateStatus({
+          report,
+          targetUrl: pr.url,
+          statusContext,
+        }),
+      });
+    }
 
-    switch (commentMode) {
-      case 'insert':
-        await insertComment({
-          client,
-          context,
-          prNumber,
-          body: message,
-        });
+    if (comment) {
+      const message = generateTable({ report, commentContext });
 
-        break;
-      case 'update':
-        await upsertComment({
-          client,
-          context,
-          prNumber,
-          body: message,
-          existingComments: await listComments({
+      switch (commentMode) {
+        case 'insert':
+          await insertComment({
             client,
             context,
-            prNumber,
-            commentHeader: generateCommentHeader({ commentContext }),
-          }),
-        });
+            prNumber: pr.number,
+            body: message,
+          });
 
-        break;
-      case 'replace':
-      default:
-        await replaceComment({
-          client,
-          context,
-          prNumber,
-          body: message,
-          existingComments: await listComments({
+          break;
+        case 'update':
+          await upsertComment({
             client,
             context,
-            prNumber,
-            commentContext,
-            commentHeader: generateCommentHeader({ commentContext }),
-          }),
-        });
+            prNumber: pr.number,
+            body: message,
+            existingComments: await listComments({
+              client,
+              context,
+              prNumber: pr.number,
+              commentHeader: generateCommentHeader({ commentContext }),
+            }),
+          });
+
+          break;
+        case 'replace':
+        default:
+          await replaceComment({
+            client,
+            context,
+            prNumber: pr.number,
+            body: message,
+            existingComments: await listComments({
+              client,
+              context,
+              prNumber: pr.number,
+              commentContext,
+              commentHeader: generateCommentHeader({ commentContext }),
+            }),
+          });
+      }
     }
   }
 }
