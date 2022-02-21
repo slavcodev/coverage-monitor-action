@@ -1,3 +1,5 @@
+const { formats } = require('./consts');
+
 function toBool(value, def) {
   if (typeof value === 'boolean') {
     return value;
@@ -31,7 +33,7 @@ function loadConfig({ getInput }) {
 
   const cloverFile = getInput('clover_file');
   const coveragePath = getInput('coverage_path') || cloverFile;
-  const coverageFormat = getInput('coverage_format') || 'auto';
+  const coverageFormat = getInput('coverage_format') || formats.FORMAT_AUTO;
 
   const thresholdAlert = toBips(getInput('threshold_alert'), 5000);
   const thresholdWarning = toBips(getInput('threshold_warning'), 9000);
@@ -56,8 +58,10 @@ function loadConfig({ getInput }) {
     throw new Error('Missing or invalid option `coverage_path`');
   }
 
-  if (!['auto', 'clover', 'json-summary'].includes(coverageFormat)) {
-    throw new Error('Invalid option `coverage_format`, supported `clover` and `json-summary`');
+  if (!Object.values(formats).includes(coverageFormat)) {
+    throw new Error(
+      `Invalid option \`coverage_format\` - supported ${Object.values(formats).join(', ')}`,
+    );
   }
 
   return {

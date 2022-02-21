@@ -247,7 +247,7 @@ describe(`${loadConfig.name}`, () => {
       input: { github_token: '***' },
     },
     {
-      error: 'Invalid option `coverage_format`, supported `clover` and `json-summary`',
+      error: 'Invalid option `coverage_format` - supported auto, clover, json-summary',
       input: { github_token: '***', coverage_path: 'coverage-summary.json', coverage_format: 'foo' },
     },
   ])('fails on error: "$error"', async ({ error, input }) => {
