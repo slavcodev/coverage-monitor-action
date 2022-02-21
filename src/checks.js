@@ -1,7 +1,7 @@
 function generateStatus({
   report: { metrics, threshold: { metric } },
   targetUrl,
-  statusContext,
+  context,
 }) {
   const { rate, level } = metrics[metric];
 
@@ -10,7 +10,7 @@ function generateStatus({
       state: 'failure',
       description: `Error: Too low ${metric} coverage - ${rate / 100}%`,
       target_url: targetUrl,
-      context: statusContext,
+      context,
     };
   }
 
@@ -19,7 +19,7 @@ function generateStatus({
       state: 'success',
       description: `Warning: low ${metric} coverage - ${rate / 100}%`,
       target_url: targetUrl,
-      context: statusContext,
+      context,
     };
   }
 
@@ -27,7 +27,7 @@ function generateStatus({
     state: 'success',
     description: `Success: ${metric} coverage - ${rate / 100}%`,
     target_url: targetUrl,
-    context: statusContext,
+    context,
   };
 }
 

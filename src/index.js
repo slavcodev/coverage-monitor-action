@@ -21,12 +21,7 @@ async function run() {
     githubToken,
     cloverFile,
     workingDir,
-    thresholdAlert,
-    thresholdWarning,
-    thresholdMetric,
-    statusContext,
-    commentContext,
-    commentMode,
+    threshold,
   } = loadConfig(core);
 
   const { context = {} } = github || {};
@@ -36,12 +31,6 @@ async function run() {
     core.debug('Handle webhook request');
     console.log(context);
   }
-
-  const threshold = {
-    metric: thresholdMetric,
-    alert: parseInt(thresholdAlert * 100, 10),
-    warning: parseInt(thresholdWarning * 100, 10),
-  };
 
   const report = generateReport(threshold, await parseFile(workingDir, cloverFile));
 
@@ -56,15 +45,15 @@ async function run() {
         status: generateStatus({
           report,
           targetUrl: pr.url,
-          statusContext,
+          ...check,
         }),
       });
     }
 
     if (comment) {
-      const message = generateTable({ report, commentContext });
+      const message = generateTable({ report, ...comment });
 
-      switch (commentMode) {
+      switch (comment.mode) {
         case 'insert':
           await insertComment({
             client,
@@ -84,7 +73,7 @@ async function run() {
               client,
               context,
               prNumber: pr.number,
-              commentHeader: generateCommentHeader({ commentContext }),
+              commentHeader: generateCommentHeader({ ...comment }),
             }),
           });
 
@@ -100,8 +89,7 @@ async function run() {
               client,
               context,
               prNumber: pr.number,
-              commentContext,
-              commentHeader: generateCommentHeader({ commentContext }),
+              commentHeader: generateCommentHeader({ ...comment }),
             }),
           });
       }
