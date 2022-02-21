@@ -14874,49 +14874,51 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 9110:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+/***/ 9546:
+/***/ ((module) => {
 
-const fs = __nccwpck_require__(3292);
-const path = __nccwpck_require__(1017);
-const { parseCloverXml } = __nccwpck_require__(193);
+function generateStatus({
+  report: { metrics, threshold: { metric } },
+  targetUrl,
+  statusContext,
+}) {
+  const { rate, level } = metrics[metric];
 
-async function readFile(workingDir, filename) {
-  // TODO: `.replace('\ufeff', ''))`
-  return fs.readFile(path.join(workingDir, filename), { encoding: 'utf-8' });
-}
+  if (level === 'red') {
+    return {
+      state: 'failure',
+      description: `Error: Too low ${metric} coverage - ${rate / 100}%`,
+      target_url: targetUrl,
+      context: statusContext,
+    };
+  }
 
-async function parseFile(workingDir, filename) {
-  return parseCloverXml(await readFile(workingDir, filename));
+  if (level === 'yellow') {
+    return {
+      state: 'success',
+      description: `Warning: low ${metric} coverage - ${rate / 100}%`,
+      target_url: targetUrl,
+      context: statusContext,
+    };
+  }
+
+  return {
+    state: 'success',
+    description: `Success: ${metric} coverage - ${rate / 100}%`,
+    target_url: targetUrl,
+    context: statusContext,
+  };
 }
 
 module.exports = {
-  parseFile,
+  generateStatus,
 };
 
 
 /***/ }),
 
-/***/ 4587:
+/***/ 4975:
 /***/ ((module) => {
-
-const DEFAULT_THRESHOLD_METRIC = 'lines';
-
-function toBool(value) {
-  return typeof value === 'boolean'
-    ? value
-    : value === 'true';
-}
-
-function readCoverage(report, threshold) {
-  return {
-    threshold,
-    statements: { ...report.metrics.statements, rate: report.metrics.statements.rate / 100 },
-    lines: { ...report.metrics.lines, rate: report.metrics.lines.rate / 100 },
-    methods: { ...report.metrics.methods, rate: report.metrics.methods.rate / 100 },
-    branches: { ...report.metrics.branches, rate: report.metrics.branches.rate / 100 },
-  };
-}
 
 function generateBadgeUrl({ rate, level }) {
   return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate / 100)}%&color=${level}`;
@@ -14957,37 +14959,23 @@ ${[
   ].join('')}`;
 }
 
-function generateStatus({
-  report: { metrics, threshold: { metric } },
-  targetUrl,
-  statusContext,
-}) {
-  const { rate, level } = metrics[metric];
+module.exports = {
+  generateBadgeUrl,
+  generateEmoji,
+  generateTable,
+  generateCommentHeader,
+};
 
-  if (level === 'red') {
-    return {
-      state: 'failure',
-      description: `Error: Too low ${metric} coverage - ${rate / 100}%`,
-      target_url: targetUrl,
-      context: statusContext,
-    };
-  }
 
-  if (level === 'yellow') {
-    return {
-      state: 'success',
-      description: `Warning: low ${metric} coverage - ${rate / 100}%`,
-      target_url: targetUrl,
-      context: statusContext,
-    };
-  }
+/***/ }),
 
-  return {
-    state: 'success',
-    description: `Success: ${metric} coverage - ${rate / 100}%`,
-    target_url: targetUrl,
-    context: statusContext,
-  };
+/***/ 4570:
+/***/ ((module) => {
+
+function toBool(value) {
+  return typeof value === 'boolean'
+    ? value
+    : value === 'true';
 }
 
 function loadConfig({ getInput }) {
@@ -15000,7 +14988,7 @@ function loadConfig({ getInput }) {
   const statusContext = getInput('status_context') || 'Coverage Report';
   const commentContext = getInput('comment_context') || 'Coverage Report';
   let commentMode = getInput('comment_mode');
-  let thresholdMetric = getInput('threshold_metric') || DEFAULT_THRESHOLD_METRIC;
+  let thresholdMetric = getInput('threshold_metric') || 'lines';
 
   if (!['replace', 'update', 'insert'].includes(commentMode)) {
     commentMode = 'replace';
@@ -15024,37 +15012,31 @@ function loadConfig({ getInput }) {
   };
 }
 
-function parseWebhook(request) {
-  const {
-    payload: {
-      pull_request: {
-        number: prNumber,
-        html_url: prUrl,
-        head: { sha } = {},
-      } = {},
-    } = {},
-  } = request || {};
+module.exports = {
+  loadConfig,
+};
 
-  if (!prNumber || !prUrl || !sha) {
-    throw new Error('Action supports only pull_request event');
-  }
 
-  return {
-    prNumber,
-    prUrl,
-    sha,
-  };
+/***/ }),
+
+/***/ 9110:
+/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
+
+const fs = __nccwpck_require__(3292);
+const path = __nccwpck_require__(1017);
+const { parseCloverXml } = __nccwpck_require__(193);
+
+async function readFile(workingDir, filename) {
+  // TODO: `.replace('\ufeff', ''))`
+  return fs.readFile(path.join(workingDir, filename), { encoding: 'utf-8' });
+}
+
+async function parseFile(workingDir, filename) {
+  return parseCloverXml(await readFile(workingDir, filename));
 }
 
 module.exports = {
-  readCoverage,
-  generateBadgeUrl,
-  generateEmoji,
-  generateTable,
-  generateStatus,
-  loadConfig,
-  generateCommentHeader,
-  parseWebhook,
+  parseFile,
 };
 
 
@@ -15172,6 +15154,28 @@ const replaceComment = async ({
   });
 };
 
+function parseWebhook(request) {
+  const {
+    payload: {
+      pull_request: {
+        number: prNumber,
+        html_url: prUrl,
+        head: { sha } = {},
+      } = {},
+    } = {},
+  } = request || {};
+
+  if (!prNumber || !prUrl || !sha) {
+    throw new Error('Action supports only pull_request event');
+  }
+
+  return {
+    prNumber,
+    prUrl,
+    sha,
+  };
+}
+
 module.exports = {
   createStatus,
   listComments,
@@ -15180,6 +15184,7 @@ module.exports = {
   deleteComments,
   upsertComment,
   replaceComment,
+  parseWebhook,
 };
 
 
@@ -15485,22 +15490,19 @@ var __webpack_exports__ = {};
 const core = __nccwpck_require__(2186);
 const github = __nccwpck_require__(5438);
 const path = __nccwpck_require__(1017);
-const {
-  generateStatus,
-  generateTable,
-  loadConfig,
-  generateCommentHeader,
-  parseWebhook,
-} = __nccwpck_require__(4587);
+const { loadConfig } = __nccwpck_require__(4570);
+const { generateStatus } = __nccwpck_require__(9546);
+const { generateTable, generateCommentHeader } = __nccwpck_require__(4975);
+const { parseFile } = __nccwpck_require__(9110);
+const { generateReport } = __nccwpck_require__(7098);
 const {
   createStatus,
   listComments,
   insertComment,
   upsertComment,
   replaceComment,
+  parseWebhook,
 } = __nccwpck_require__(8396);
-const { parseFile } = __nccwpck_require__(9110);
-const { generateReport } = __nccwpck_require__(7098);
 
 async function run() {
   const {

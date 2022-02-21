@@ -1,22 +1,19 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
 const path = require('path');
-const {
-  generateStatus,
-  generateTable,
-  loadConfig,
-  generateCommentHeader,
-  parseWebhook,
-} = require('./functions');
+const { loadConfig } = require('./config');
+const { generateStatus } = require('./checks');
+const { generateTable, generateCommentHeader } = require('./comments');
+const { parseFile } = require('./files');
+const { generateReport } = require('./report');
 const {
   createStatus,
   listComments,
   insertComment,
   upsertComment,
   replaceComment,
+  parseWebhook,
 } = require('./github');
-const { parseFile } = require('./files');
-const { generateReport } = require('./report');
 
 async function run() {
   const {
