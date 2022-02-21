@@ -1,7 +1,10 @@
-const path = require('path');
 const parser = require('../src/functions');
+const { parseFile } = require('../src/files');
+const { generateReport } = require('../src/report');
 
 describe('functions', () => {
+  const workingDir = __dirname;
+
   const cloverCases = [
     {
       filename: '/stubs/clover/clover.xml',
@@ -63,14 +66,6 @@ describe('functions', () => {
     },
   ];
 
-  it('fails on invalid file', async () => {
-    expect.hasAssertions();
-
-    const filename = path.join(__dirname, 'unknown.xml');
-
-    await expect(parser.readFile(filename)).rejects.toThrow('no such file or directory');
-  });
-
   it.each(cloverCases)(
     'parses $filename to JS',
     async ({
@@ -84,15 +79,18 @@ describe('functions', () => {
     }) => {
       expect.hasAssertions();
 
-      const xml = await parser.readFile(path.join(__dirname, filename));
+      const threshold = {
+        thresholdAlert: 50,
+        thresholdWarning: 90,
+        thresholdMetric: 'lines',
+      };
 
-      expect(xml).toHaveProperty('coverage');
-      expect(xml.coverage).toHaveProperty('project');
-      expect(xml.coverage.project).toHaveProperty('0');
-      expect(xml.coverage.project[0]).toHaveProperty('metrics');
-      expect(xml.coverage.project[0].metrics).toHaveProperty('0');
+      const report = generateReport({
+        alert: parseInt(threshold.thresholdAlert * 100, 10),
+        warning: parseInt(threshold.thresholdWarning * 100, 10),
+      }, await parseFile(workingDir, filename));
 
-      const coverage = parser.readMetric(xml);
+      const coverage = parser.readCoverage(report, threshold);
 
       ['statements', 'lines', 'methods', 'branches'].forEach((type) => {
         expect(coverage).toHaveProperty(type);
@@ -109,41 +107,28 @@ describe('functions', () => {
     },
   );
 
-  it('calculates level', async () => {
-    expect.hasAssertions();
-
-    [
-      [49, 50, 90, 'red'],
-      [50, 50, 90, 'yellow'],
-      [51, 50, 90, 'yellow'],
-      [89, 50, 90, 'yellow'],
-      [90, 50, 90, 'green'],
-      [91, 50, 90, 'green'],
-    ].forEach(
-      ([rate, thresholdAlert, thresholdWarning, level]) => {
-        expect(parser.calculateLevel({ rate }, thresholdAlert, thresholdWarning)).toBe(level);
-      },
-    );
-  });
-
   it.each([
     {
-      coverage: { lines: { rate: 50, level: 'red' }, threshold: { thresholdMetric: 'lines' } },
+      threshold: { metric: 'lines' },
+      metrics: { lines: { rate: 5000, level: 'red' } },
       expectedState: 'failure',
       expectedDescription: 'Error: Too low lines coverage - 50%',
     },
     {
-      coverage: { statements: { rate: 50, level: 'yellow' }, threshold: { thresholdMetric: 'statements' } },
+      threshold: { metric: 'statements' },
+      metrics: { statements: { rate: 5000, level: 'yellow' } },
       expectedState: 'success',
       expectedDescription: 'Warning: low statements coverage - 50%',
     },
     {
-      coverage: { branches: { rate: 50, level: 'green' }, threshold: { thresholdMetric: 'branches' } },
+      threshold: { metric: 'branches' },
+      metrics: { branches: { rate: 5000, level: 'green' } },
       expectedState: 'success',
       expectedDescription: 'Success: branches coverage - 50%',
     },
-  ])('generates status', async ({
-    coverage,
+  ])('generates status "$expectedDescription"', async ({
+    threshold,
+    metrics,
     expectedState,
     expectedDescription,
   }) => {
@@ -154,7 +139,7 @@ describe('functions', () => {
     expect(parser.generateStatus({
       targetUrl,
       statusContext,
-      coverage,
+      report: { metrics, threshold },
     })).toStrictEqual({
       state: expectedState,
       description: expectedDescription,
@@ -166,22 +151,17 @@ describe('functions', () => {
   it('generates badge URL', async () => {
     expect.hasAssertions();
 
-    const coverage = {
-      threshold: { thresholdAlert: 0, thresholdWarning: 1, thresholdMetric: 'lines' },
-      lines: { rate: 9.4, level: 'green' },
-    };
-
-    expect(parser.generateBadgeUrl(coverage)).toBe(
+    expect(parser.generateBadgeUrl({ rate: 940, level: 'green' })).toBe(
       'https://img.shields.io/static/v1?label=coverage&message=9%&color=green',
     );
   });
 
   it.each([
-    { expected: ' 🎉', coverage: { lines: { rate: 100 }, threshold: { thresholdMetric: 'lines' } } },
-    { expected: '', coverage: { branches: { rate: 99.99 }, threshold: { thresholdMetric: 'branches' } } },
-  ])('generates emoji $expected', async ({ expected, coverage }) => {
+    { expected: ' 🎉', metric: { rate: 10000 } },
+    { expected: '', metric: { rate: 9999 } },
+  ])('generates emoji $expected', async ({ expected, metric }) => {
     expect.hasAssertions();
-    expect(parser.generateEmoji(coverage)).toBe(expected);
+    expect(parser.generateEmoji(metric)).toBe(expected);
   });
 
   it('generates header', async () => {
@@ -193,31 +173,33 @@ describe('functions', () => {
   it('generates table', async () => {
     expect.hasAssertions();
 
-    const coverage = {
-      threshold: { thresholdAlert: 0, thresholdWarning: 50, thresholdMetric: 'lines' },
-      statements: {
-        total: 10,
-        covered: 1,
-        rate: 10,
-        level: 'yellow',
-      },
-      lines: {
-        total: 10,
-        covered: 2,
-        rate: 20,
-        level: 'yellow',
-      },
-      methods: {
-        total: 10,
-        covered: 3,
-        rate: 30,
-        level: 'yellow',
-      },
-      branches: {
-        total: 10,
-        covered: 4,
-        rate: 40,
-        level: 'yellow',
+    const report = {
+      threshold: { alert: 0, warning: 50, metric: 'lines' },
+      metrics: {
+        statements: {
+          total: 10,
+          covered: 1,
+          rate: 1000,
+          level: 'yellow',
+        },
+        lines: {
+          total: 10,
+          covered: 2,
+          rate: 2000,
+          level: 'yellow',
+        },
+        methods: {
+          total: 10,
+          covered: 3,
+          rate: 3000,
+          level: 'yellow',
+        },
+        branches: {
+          total: 10,
+          covered: 4,
+          rate: 4000,
+          level: 'yellow',
+        },
       },
     };
 
@@ -232,37 +214,39 @@ describe('functions', () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(parser.generateTable({ coverage, commentContext: 'Coverage Report' })).toBe(expectedString);
+    expect(parser.generateTable({ report, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
   it('hides metric rows in table when metric is not available (total is zero)', async () => {
     expect.hasAssertions();
 
-    const coverage = {
-      threshold: { thresholdAlert: 30, thresholdWarning: 50, thresholdMetric: 'branches' },
-      statements: {
-        total: 10,
-        covered: 1,
-        rate: 10,
-        level: 'red',
-      },
-      lines: {
-        total: 10,
-        covered: 2,
-        rate: 20,
-        level: 'red',
-      },
-      methods: {
-        total: 0,
-        covered: 0,
-        rate: 0,
-        level: 'red',
-      },
-      branches: {
-        total: 10,
-        covered: 4,
-        rate: 40,
-        level: 'yellow',
+    const report = {
+      threshold: { alert: 30, warning: 50, metric: 'branches' },
+      metrics: {
+        statements: {
+          total: 10,
+          covered: 1,
+          rate: 1000,
+          level: 'red',
+        },
+        lines: {
+          total: 10,
+          covered: 2,
+          rate: 2000,
+          level: 'red',
+        },
+        methods: {
+          total: 0,
+          covered: 0,
+          rate: 0,
+          level: 'red',
+        },
+        branches: {
+          total: 10,
+          covered: 4,
+          rate: 4000,
+          level: 'yellow',
+        },
       },
     };
 
@@ -276,7 +260,7 @@ describe('functions', () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(parser.generateTable({ coverage, commentContext: 'Coverage Report' })).toBe(expectedString);
+    expect(parser.generateTable({ report, commentContext: 'Coverage Report' })).toBe(expectedString);
   });
 
   function createConfigReader(inputs) {

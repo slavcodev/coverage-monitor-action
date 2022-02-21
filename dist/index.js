@@ -905,6 +905,13 @@ module.exports = require("punycode");
 
 /***/ }),
 
+/***/ 225:
+/***/ (function(module) {
+
+module.exports = require("fs/promises");
+
+/***/ }),
+
 /***/ 226:
 /***/ (function(__unusedmodule, exports) {
 
@@ -2116,6 +2123,59 @@ exports.endpoint = endpoint;
 /***/ (function(module, __unusedexports, __webpack_require__) {
 
 module.exports = __webpack_require__(141);
+
+
+/***/ }),
+
+/***/ 417:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+const xml2js = __webpack_require__(992);
+
+// noinspection SpellCheckingInspection
+const parser = new xml2js.Parser({
+  // Normalize all tag names to lowercase.
+  normalizeTags: true,
+  // Always put child nodes in an array if true; otherwise an array is created only if there is more than one.
+  explicitArray: true,
+  attrkey: 'attributes',
+  charkey: 'content',
+  childkey: 'children',
+  // Put child elements to separate property (see `childkey`).
+  explicitChildren: true,
+  // Set this if you want to get the root node in the resulting object.
+  explicitRoot: false,
+});
+
+async function parseXmlFile(buffer) {
+  return parser.parseStringPromise(buffer);
+}
+
+async function parseCloverXml(buffer) {
+  const xml = await parseXmlFile(buffer);
+
+  const {
+    elements,
+    coveredelements,
+    statements,
+    coveredstatements,
+    methods,
+    coveredmethods,
+    conditionals,
+    coveredconditionals,
+  } = xml.children.project[0].children.metrics[0].attributes;
+
+  return {
+    statements: { total: Number(elements), covered: Number(coveredelements) },
+    lines: { total: Number(statements), covered: Number(coveredstatements) },
+    methods: { total: Number(methods), covered: Number(coveredmethods) },
+    branches: { total: Number(conditionals), covered: Number(coveredconditionals) },
+  };
+}
+
+module.exports = {
+  parseCloverXml,
+};
 
 
 /***/ }),
@@ -6701,6 +6761,57 @@ exports.HttpClient = HttpClient;
 
 /***/ }),
 
+/***/ 598:
+/***/ (function(module) {
+
+function calculateLevel(rate, { alert, warning }) {
+  if (rate < alert) {
+    return 'red';
+  }
+
+  if (rate < warning) {
+    return 'yellow';
+  }
+
+  return 'green';
+}
+
+function calcMetric(threshold, total, covered) {
+  // Use bips, rather than percentage, prefer integer arther than float.
+  const rate = total
+    ? Number((Number((covered / total) * 10000).toFixed(0)))
+    : 0;
+
+  const level = calculateLevel(rate, threshold);
+
+  return {
+    total,
+    covered,
+    rate,
+    level,
+  };
+}
+
+function generateReport(threshold, coverage) {
+  return {
+    threshold,
+    metrics: {
+      statements: calcMetric(threshold, coverage.statements.total, coverage.statements.covered),
+      lines: calcMetric(threshold, coverage.lines.total, coverage.lines.covered),
+      methods: calcMetric(threshold, coverage.methods.total, coverage.methods.covered),
+      branches: calcMetric(threshold, coverage.branches.total, coverage.branches.covered),
+    },
+  };
+}
+
+module.exports = {
+  calculateLevel,
+  generateReport,
+};
+
+
+/***/ }),
+
 /***/ 602:
 /***/ (function(module) {
 
@@ -8863,9 +8974,8 @@ module.exports = require("util");
 
 const core = __webpack_require__(470);
 const github = __webpack_require__(469);
+const path = __webpack_require__(622);
 const {
-  readFile,
-  readMetric,
   generateStatus,
   generateTable,
   loadConfig,
@@ -8879,6 +8989,8 @@ const {
   upsertComment,
   replaceComment,
 } = __webpack_require__(790);
+const { parseFile } = __webpack_require__(688);
+const { generateReport } = __webpack_require__(598);
 
 async function run() {
   const {
@@ -8894,6 +9006,8 @@ async function run() {
     commentMode,
   } = loadConfig(core);
 
+  const workingDir = path.join(__dirname, '..');
+
   if (!check && !comment) {
     return;
   }
@@ -8907,10 +9021,13 @@ async function run() {
 
   const client = github.getOctokit(githubToken).rest;
 
-  const coverage = readMetric(
-    await readFile(cloverFile),
-    { thresholdAlert, thresholdWarning, thresholdMetric },
-  );
+  const threshold = {
+    metric: thresholdMetric,
+    alert: parseInt(thresholdAlert * 100, 10),
+    warning: parseInt(thresholdWarning * 100, 10),
+  };
+
+  const report = generateReport(threshold, await parseFile(workingDir, cloverFile));
 
   if (check) {
     await createStatus({
@@ -8918,15 +9035,15 @@ async function run() {
       context,
       sha,
       status: generateStatus({
+        report,
         targetUrl: prUrl,
-        coverage,
         statusContext,
       }),
     });
   }
 
   if (comment) {
-    const message = generateTable({ coverage, commentContext });
+    const message = generateTable({ report, commentContext });
 
     switch (commentMode) {
       case 'insert':
@@ -9003,6 +9120,29 @@ run().catch((error) => core.setFailed(error.message));
   };
 
 }).call(this);
+
+
+/***/ }),
+
+/***/ 688:
+/***/ (function(module, __unusedexports, __webpack_require__) {
+
+const fs = __webpack_require__(225);
+const path = __webpack_require__(622);
+const { parseCloverXml } = __webpack_require__(417);
+
+async function readFile(workingDir, filename) {
+  // TODO: `.replace('\ufeff', ''))`
+  return fs.readFile(path.join(workingDir, filename), { encoding: 'utf-8' });
+}
+
+async function parseFile(workingDir, filename) {
+  return parseCloverXml(await readFile(workingDir, filename));
+}
+
+module.exports = {
+  parseFile,
+};
 
 
 /***/ }),
@@ -12941,32 +13081,9 @@ exports.restEndpointMethods = restEndpointMethods;
 /***/ }),
 
 /***/ 858:
-/***/ (function(module, __unusedexports, __webpack_require__) {
-
-const xml2js = __webpack_require__(992);
-const fs = __webpack_require__(747);
-
-fs.readFileAsync = (filename) => new Promise(
-  (resolve, reject) => {
-    fs.readFile(filename, { encoding: 'utf-8' }, (err, data) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(`${data}`.replace('\ufeff', ''));
-      }
-    });
-  },
-);
-
-const parser = new xml2js.Parser(/* options */);
+/***/ (function(module) {
 
 const DEFAULT_THRESHOLD_METRIC = 'lines';
-const DEFAULT_THRESHOLD_ALERT = 50;
-const DEFAULT_THRESHOLD_WARNING = 90;
-
-async function readFile(filename) {
-  return parser.parseStringPromise(await fs.readFileAsync(filename));
-}
 
 function toBool(value) {
   return typeof value === 'boolean'
@@ -12974,72 +13091,22 @@ function toBool(value) {
     : value === 'true';
 }
 
-function toNumber(value) {
-  return value * 1;
-}
-
-function calculateLevel({ rate }, thresholdAlert, thresholdWarning) {
-  if (rate < thresholdAlert) {
-    return 'red';
-  }
-
-  if (rate < thresholdWarning) {
-    return 'yellow';
-  }
-
-  return 'green';
-}
-
-function calcMetric(total, covered, thresholdAlert, thresholdWarning) {
-  const rate = total
-    ? toNumber(Number((covered / total) * 100).toFixed(2))
-    : 0;
-
-  const level = calculateLevel({ rate }, thresholdAlert, thresholdWarning);
-
+function readCoverage(report, threshold) {
   return {
-    total,
-    covered,
-    rate,
-    level,
+    threshold,
+    statements: { ...report.metrics.statements, rate: report.metrics.statements.rate / 100 },
+    lines: { ...report.metrics.lines, rate: report.metrics.lines.rate / 100 },
+    methods: { ...report.metrics.methods, rate: report.metrics.methods.rate / 100 },
+    branches: { ...report.metrics.branches, rate: report.metrics.branches.rate / 100 },
   };
 }
 
-function readMetric(xml, {
-  thresholdAlert = DEFAULT_THRESHOLD_ALERT,
-  thresholdWarning = DEFAULT_THRESHOLD_WARNING,
-  thresholdMetric = DEFAULT_THRESHOLD_METRIC,
-} = {}) {
-  const {
-    elements,
-    coveredelements,
-    statements,
-    coveredstatements,
-    methods,
-    coveredmethods,
-    conditionals,
-    coveredconditionals,
-  } = xml.coverage.project[0].metrics[0].$;
-
-  return {
-    threshold: { thresholdAlert, thresholdWarning, thresholdMetric },
-    statements: calcMetric(toNumber(elements), toNumber(coveredelements), thresholdAlert, thresholdWarning),
-    lines: calcMetric(toNumber(statements), toNumber(coveredstatements), thresholdAlert, thresholdWarning),
-    methods: calcMetric(toNumber(methods), toNumber(coveredmethods), thresholdAlert, thresholdWarning),
-    branches: calcMetric(toNumber(conditionals), toNumber(coveredconditionals), thresholdAlert, thresholdWarning),
-  };
+function generateBadgeUrl({ rate, level }) {
+  return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate / 100)}%&color=${level}`;
 }
 
-function generateBadgeUrl(coverage) {
-  const { rate, level } = coverage[coverage.threshold.thresholdMetric];
-
-  return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate)}%&color=${level}`;
-}
-
-function generateEmoji(coverage) {
-  const { rate } = coverage[coverage.threshold.thresholdMetric];
-
-  return rate === 100 ? ' 🎉' : '';
+function generateEmoji({ rate }) {
+  return rate === 10000 ? ' 🎉' : '';
 }
 
 function generateCommentHeader({ commentContext }) {
@@ -13051,37 +13118,39 @@ function generateTableRow(title, {
   total,
   covered,
 }) {
-  return total ? `| ${title}: | ${rate}% ( ${covered} / ${total} ) |\n` : '';
+  return total ? `| ${title}: | ${rate / 100}% ( ${covered} / ${total} ) |\n` : '';
 }
 
 function generateTable({
-  coverage,
+  report,
   commentContext,
 }) {
-  return `${generateCommentHeader({ commentContext })}
-## ${commentContext}${generateEmoji(coverage)}
+  const metric = report.metrics[report.threshold.metric];
 
-|  Totals | ![Coverage](${generateBadgeUrl(coverage)}) |
+  return `${generateCommentHeader({ commentContext })}
+## ${commentContext}${generateEmoji(metric)}
+
+|  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
 | :-- | :-- |
 ${[
-    generateTableRow('Statements', coverage.statements),
-    generateTableRow('Methods', coverage.methods),
-    generateTableRow('Lines', coverage.lines),
-    generateTableRow('Branches', coverage.branches),
+    generateTableRow('Statements', report.metrics.statements),
+    generateTableRow('Methods', report.metrics.methods),
+    generateTableRow('Lines', report.metrics.lines),
+    generateTableRow('Branches', report.metrics.branches),
   ].join('')}`;
 }
 
 function generateStatus({
-  coverage,
+  report: { metrics, threshold: { metric } },
   targetUrl,
   statusContext,
 }) {
-  const { rate, level } = coverage[coverage.threshold.thresholdMetric];
+  const { rate, level } = metrics[metric];
 
   if (level === 'red') {
     return {
       state: 'failure',
-      description: `Error: Too low ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
+      description: `Error: Too low ${metric} coverage - ${rate / 100}%`,
       target_url: targetUrl,
       context: statusContext,
     };
@@ -13090,7 +13159,7 @@ function generateStatus({
   if (level === 'yellow') {
     return {
       state: 'success',
-      description: `Warning: low ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
+      description: `Warning: low ${metric} coverage - ${rate / 100}%`,
       target_url: targetUrl,
       context: statusContext,
     };
@@ -13098,7 +13167,7 @@ function generateStatus({
 
   return {
     state: 'success',
-    description: `Success: ${coverage.threshold.thresholdMetric} coverage - ${rate}%`,
+    description: `Success: ${metric} coverage - ${rate / 100}%`,
     target_url: targetUrl,
     context: statusContext,
   };
@@ -13109,8 +13178,8 @@ function loadConfig({ getInput }) {
   const check = toBool(getInput('check'));
   const githubToken = getInput('github_token', { required: true });
   const cloverFile = getInput('clover_file', { required: true });
-  const thresholdAlert = toNumber(getInput('threshold_alert') || 90);
-  const thresholdWarning = toNumber(getInput('threshold_warning') || 50);
+  const thresholdAlert = Number(getInput('threshold_alert') || 90);
+  const thresholdWarning = Number(getInput('threshold_warning') || 50);
   const statusContext = getInput('status_context') || 'Coverage Report';
   const commentContext = getInput('comment_context') || 'Coverage Report';
   let commentMode = getInput('comment_mode');
@@ -13121,7 +13190,7 @@ function loadConfig({ getInput }) {
   }
 
   if (!['statements', 'lines', 'methods', 'branches'].includes(thresholdMetric)) {
-    thresholdMetric = DEFAULT_THRESHOLD_METRIC;
+    thresholdMetric = 'lines';
   }
 
   return {
@@ -13161,12 +13230,10 @@ function parseWebhook(request) {
 }
 
 module.exports = {
-  readFile,
-  readMetric,
+  readCoverage,
   generateBadgeUrl,
   generateEmoji,
   generateTable,
-  calculateLevel,
   generateStatus,
   loadConfig,
   generateCommentHeader,
