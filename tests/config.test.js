@@ -1,165 +1,203 @@
-const path = require('path');
 const { loadConfig } = require('../src/config');
 
 describe(`${loadConfig.name}`, () => {
-  const workingDir = path.join(__dirname, '..');
+  const workingDir = process.cwd();
 
-  function createConfigReader(inputs) {
-    return {
-      getInput(name) {
-        return inputs[
-          name.split('_').reduce(
-            (carry, item) => (carry === null ? item : `${carry}${item[0].toUpperCase() + item.slice(1)}`),
-            null,
-          )
-        ];
+  const defaultInput = {
+    threshold_alert: 50,
+    threshold_warning: 90,
+    threshold_metric: 'lines',
+    check: true,
+    status_context: 'Coverage Report',
+    comment: true,
+    comment_context: 'Coverage Report',
+    comment_mode: 'replace',
+  };
+
+  const defaultOutput = {
+    workingDir,
+    threshold: {
+      alert: 5000,
+      warning: 9000,
+      metric: 'lines',
+    },
+    comment: {
+      context: 'Coverage Report',
+      mode: 'replace',
+    },
+    check: {
+      context: 'Coverage Report',
+    },
+  };
+
+  const core = (input) => ({
+    getInput(name, { required } = {}) {
+      const value = input[name];
+
+      if (required && value === undefined) {
+        throw new Error(`Missing options ${name}`);
+      }
+
+      return value;
+    },
+  });
+
+  it.each([
+    {
+      scenario: 'minimum set',
+      input: { github_token: '***', clover_file: 'clover.xml' },
+      expected: { ...defaultOutput, githubToken: '***', cloverFile: 'clover.xml' },
+    },
+    {
+      scenario: 'defaults',
+      input: { ...defaultInput, github_token: '***', clover_file: 'clover.xml' },
+      expected: { ...defaultOutput, githubToken: '***', cloverFile: 'clover.xml' },
+    },
+    {
+      scenario: 'neither check nor comment',
+      input: {
+        ...defaultInput,
+        github_token: '***',
+        clover_file: 'clover.xml',
+        check: false,
+        comment: false,
       },
-    };
-  }
-
-  it('loads config', async () => {
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        cloverFile: 'clover.xml',
+        check: undefined,
+        comment: undefined,
+      },
+    },
+    {
+      scenario: 'specific threshold values',
+      input: {
+        ...defaultInput,
+        github_token: '***',
+        clover_file: 'clover.xml',
+        threshold_alert: 10,
+        threshold_warning: 20,
+      },
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        cloverFile: 'clover.xml',
+        threshold: {
+          alert: 1000,
+          warning: 2000,
+          metric: 'lines',
+        },
+      },
+    },
+    {
+      scenario: 'specific threshold metric',
+      input: {
+        ...defaultInput,
+        github_token: '***',
+        clover_file: 'clover.xml',
+        threshold_metric: 'branches',
+      },
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        cloverFile: 'clover.xml',
+        threshold: {
+          alert: 5000,
+          warning: 9000,
+          metric: 'branches',
+        },
+      },
+    },
+    {
+      scenario: 'default metric when unsupported is set',
+      input: {
+        ...defaultInput,
+        github_token: '***',
+        clover_file: 'clover.xml',
+        threshold_metric: 'foo',
+      },
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        cloverFile: 'clover.xml',
+        threshold: {
+          alert: 5000,
+          warning: 9000,
+          metric: 'lines',
+        },
+      },
+    },
+    {
+      scenario: 'working dir',
+      input: {
+        ...defaultInput,
+        github_token: '***',
+        clover_file: 'clover.xml',
+        working_dir: 'foo',
+      },
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        cloverFile: 'clover.xml',
+        workingDir: 'foo',
+      },
+    },
+    {
+      scenario: 'values required coercing',
+      input: {
+        ...defaultInput,
+        github_token: '***',
+        clover_file: 'clover.xml',
+        check: 'on',
+        comment: 'off',
+      },
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        cloverFile: 'clover.xml',
+        comment: undefined,
+      },
+    },
+    {
+      scenario: 'specific comment',
+      input: {
+        ...defaultInput,
+        github_token: '***',
+        clover_file: 'clover.xml',
+        comment_context: 'Foobar',
+        comment_mode: 'insert',
+      },
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        cloverFile: 'clover.xml',
+        comment: {
+          context: 'Foobar',
+          mode: 'insert',
+        },
+      },
+    },
+    {
+      scenario: 'default comment mode when unsupported is set',
+      input: {
+        ...defaultInput,
+        github_token: '***',
+        clover_file: 'clover.xml',
+        comment_mode: 'foo',
+      },
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        cloverFile: 'clover.xml',
+        comment: {
+          context: 'Coverage Report',
+          mode: 'replace',
+        },
+      },
+    },
+  ])('loads config with $scenario', async ({ scenario, input, expected }) => {
     expect.hasAssertions();
-
-    const inputs = {
-      comment: true,
-      check: false,
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-      workingDir: 'foo',
-      thresholdAlert: 10,
-      thresholdWarning: 20,
-      thresholdMetric: 'branches',
-      statusContext: 'Coverage',
-      commentContext: 'Coverage Report',
-      commentMode: 'replace',
-    };
-
-    const reader = createConfigReader(inputs);
-    const config = loadConfig(reader);
-
-    expect(config).toStrictEqual(inputs);
-  });
-
-  it('uses defaults on loading config', async () => {
-    expect.hasAssertions();
-
-    const inputs = {
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-    };
-
-    const expected = {
-      comment: false,
-      check: false,
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-      workingDir,
-      thresholdAlert: 90,
-      thresholdWarning: 50,
-      thresholdMetric: 'lines',
-      statusContext: 'Coverage Report',
-      commentContext: 'Coverage Report',
-      commentMode: 'replace',
-    };
-
-    const reader = createConfigReader(inputs);
-    const config = loadConfig(reader);
-
-    expect(config).toStrictEqual(expected);
-  });
-
-  it('coerces config values', async () => {
-    expect.hasAssertions();
-
-    const inputs = {
-      comment: 'true',
-      check: 'false',
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-      thresholdAlert: '10',
-      thresholdWarning: '20',
-      thresholdMetric: 'branches',
-      statusContext: 'Coverage',
-      commentContext: 'Coverage Report',
-      commentMode: 'replace',
-    };
-
-    const expected = {
-      comment: true,
-      check: false,
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-      workingDir,
-      thresholdAlert: 10,
-      thresholdWarning: 20,
-      thresholdMetric: 'branches',
-      statusContext: 'Coverage',
-      commentContext: 'Coverage Report',
-      commentMode: 'replace',
-    };
-
-    const reader = createConfigReader(inputs);
-    const config = loadConfig(reader);
-
-    expect(config).toStrictEqual(expected);
-  });
-
-  it('uses default comment mode if got unsupported value', async () => {
-    expect.hasAssertions();
-
-    const inputs = {
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-      commentMode: 'foo',
-    };
-
-    const expected = {
-      comment: false,
-      check: false,
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-      workingDir,
-      thresholdAlert: 90,
-      thresholdWarning: 50,
-      thresholdMetric: 'lines',
-      statusContext: 'Coverage Report',
-      commentContext: 'Coverage Report',
-      commentMode: 'replace',
-    };
-
-    const reader = createConfigReader(inputs);
-    const config = loadConfig(reader);
-
-    expect(config).toStrictEqual(expected);
-  });
-
-  it('uses default threshold metric if got unsupported value', async () => {
-    expect.hasAssertions();
-
-    const inputs = {
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-      commentMode: 'replace',
-      thresholdMetric: 'foo',
-    };
-
-    const expected = {
-      comment: false,
-      check: false,
-      githubToken: '***',
-      cloverFile: 'clover.xml',
-      workingDir,
-      thresholdAlert: 90,
-      thresholdWarning: 50,
-      thresholdMetric: 'lines',
-      statusContext: 'Coverage Report',
-      commentContext: 'Coverage Report',
-      commentMode: 'replace',
-    };
-
-    const reader = createConfigReader(inputs);
-    const config = loadConfig(reader);
-
-    expect(config).toStrictEqual(expected);
+    expect(loadConfig(core(input))).toStrictEqual(expected, scenario);
   });
 });

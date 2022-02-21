@@ -1,4 +1,4 @@
-const { generateStatus } = require('../src/checks');
+const {   generateStatus } = require('../src/checks');
 
 describe(`${generateStatus.name}`, () => {
   it.each([
@@ -32,7 +32,7 @@ describe(`${generateStatus.name}`, () => {
 
     expect(generateStatus({
       targetUrl,
-      statusContext,
+      context: statusContext,
       report: { metrics, threshold },
     })).toStrictEqual({
       state: expectedState,

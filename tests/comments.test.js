@@ -28,7 +28,7 @@ describe(`${generateEmoji.name}`, () => {
 describe(`${generateCommentHeader.name}`, () => {
   it('generates header', async () => {
     expect.hasAssertions();
-    expect(generateCommentHeader({ commentContext: 'foobar' })).toBe(`<!-- coverage-monitor-action: foobar -->`);
+    expect(generateCommentHeader({ context: 'foobar' })).toBe(`<!-- coverage-monitor-action: foobar -->`);
   });
 });
 
@@ -77,7 +77,7 @@ describe(`${generateTable.name}`, () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(generateTable({ report, commentContext: 'Coverage Report' })).toBe(expectedString);
+    expect(generateTable({ report, context: 'Coverage Report' })).toBe(expectedString);
   });
 
   it('hides metric rows in table when metric is not available (total is zero)', async () => {
@@ -123,6 +123,6 @@ describe(`${generateTable.name}`, () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(generateTable({ report, commentContext: 'Coverage Report' })).toBe(expectedString);
+    expect(generateTable({ report, context: 'Coverage Report' })).toBe(expectedString);
   });
 });

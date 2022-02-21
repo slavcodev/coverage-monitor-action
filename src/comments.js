@@ -6,8 +6,8 @@ function generateEmoji({ rate }) {
   return rate === 10000 ? ' 🎉' : '';
 }
 
-function generateCommentHeader({ commentContext }) {
-  return `<!-- coverage-monitor-action: ${commentContext} -->`;
+function generateCommentHeader({ context }) {
+  return `<!-- coverage-monitor-action: ${context} -->`;
 }
 
 function generateTableRow(title, {
@@ -20,12 +20,12 @@ function generateTableRow(title, {
 
 function generateTable({
   report,
-  commentContext,
+  context,
 }) {
   const metric = report.metrics[report.threshold.metric];
 
-  return `${generateCommentHeader({ commentContext })}
-## ${commentContext}${generateEmoji(metric)}
+  return `${generateCommentHeader({ context })}
+## ${context}${generateEmoji(metric)}
 
 |  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
 | :-- | :-- |
