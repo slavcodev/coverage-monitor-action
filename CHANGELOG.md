@@ -16,7 +16,11 @@ Security - in case of vulnerabilities.
 
 ## [Unreleased]
 
-_TBD_
+### Changed
+
+- Migrated action to Node.js v16.
+- Migrated from `@zeit/ncc` to `@vercel/ncc`.
+- Refactored the code, split functions in smaller files.
 
 ## [1.3.1] 2022-02-20
 

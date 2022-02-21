@@ -1,20 +1,18 @@
 const core = require('@actions/core');
 const github = require('@actions/github');
-const {
-  readFile,
-  readMetric,
-  generateStatus,
-  generateTable,
-  loadConfig,
-  generateCommentHeader,
-  parseWebhook,
-} = require('./functions');
+const path = require('path');
+const { loadConfig } = require('./config');
+const { generateStatus } = require('./checks');
+const { generateTable, generateCommentHeader } = require('./comments');
+const { parseFile } = require('./files');
+const { generateReport } = require('./report');
 const {
   createStatus,
   listComments,
   insertComment,
   upsertComment,
   replaceComment,
+  parseWebhook,
 } = require('./github');
 
 async function run() {
@@ -31,6 +29,8 @@ async function run() {
     commentMode,
   } = loadConfig(core);
 
+  const workingDir = path.join(__dirname, '..');
+
   if (!check && !comment) {
     return;
   }
@@ -44,10 +44,13 @@ async function run() {
 
   const client = github.getOctokit(githubToken).rest;
 
-  const coverage = readMetric(
-    await readFile(cloverFile),
-    { thresholdAlert, thresholdWarning, thresholdMetric },
-  );
+  const threshold = {
+    metric: thresholdMetric,
+    alert: parseInt(thresholdAlert * 100, 10),
+    warning: parseInt(thresholdWarning * 100, 10),
+  };
+
+  const report = generateReport(threshold, await parseFile(workingDir, cloverFile));
 
   if (check) {
     await createStatus({
@@ -55,15 +58,15 @@ async function run() {
       context,
       sha,
       status: generateStatus({
+        report,
         targetUrl: prUrl,
-        coverage,
         statusContext,
       }),
     });
   }
 
   if (comment) {
-    const message = generateTable({ coverage, commentContext });
+    const message = generateTable({ report, commentContext });
 
     switch (commentMode) {
       case 'insert':

@@ -23,16 +23,19 @@ The action works only with `pull_request` event.
 
 ### Inputs
 
-- `github_token` - The GITHUB_TOKEN secret.
-- `clover_file` - Path to Clover XML file.
-- `check` - Whether check the coverage thresholds.
-- `comment` - Whether comment the coverage report.
-- `threshold_alert` - Mark the build as unstable when coverage is less than this threshold.
-- `threshold_warning` - Warning when coverage is less than this threshold.
-- `threshold_metric` - A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`. The default is `lines`.
-- `status_context` - A string label to differentiate this status from the status of other systems.
-- `comment_context` - A string label to differentiate the comment posted by this action.
-- `comment_mode` - A mode for comments, supported: `replace`, `update` or `insert`. The default is `replace`.
+
+| Options | Description |
+| :-- | :-- |
+| `github_token` | Required. The GITHUB_TOKEN secret. |
+| `clover_file` | Required. Path to Clover XML file. |
+| `check` | Whether check the coverage thresholds. Default to `true`. |
+| `comment` | Whether comment the coverage report. Default to `true`. |
+| `threshold_alert` | Mark the build as unstable when coverage is less than this threshold. Default to `50`. |
+| `threshold_warning` | Warning when coverage is less than this threshold. Default to `90`. |
+| `threshold_metric` | A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`. Default to `lines`. |
+| `status_context` | A string label to differentiate this status from the status of other systems. Default to `Coverage Report`. |
+| `comment_context` | A string label to differentiate the comment posted by this action. Default to `Coverage Report`. |
+| `comment_mode` | A mode for comments, supported: `replace`, `update` or `insert`. Default to `replace`. |
 
 ### Example workflow 
 
@@ -50,13 +53,37 @@ jobs:
         run: npm test
 
       - name: Monitor coverage
-        uses: slavcodev/coverage-monitor-action@1.2.0
+        uses: slavcodev/coverage-monitor-action@v1
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           clover_file: "logs/clover.xml"
           threshold_alert: 10
           threshold_warning: 50
           threshold_metric: "lines"
+~~~
+
+### Permissions for the `GITHUB_TOKEN`
+
+The secret `GITHUB_TOKEN` is granted with some permissions, and in some cases the action may fail to post the comment or the check status,
+for example on `Dependabot` pull-requests. You can follow instructions from [Using the GITHUB_TOKEN in a workflow guid](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
+how to set up permissions.
+
+You also can work around the issue with using the action with conditions, for example:
+
+~~~yaml
+name: Tests
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Monitor coverage
+        if: ! contains(github.event.pull_request.user.login, 'dependabot[bot]')
+        uses: slavcodev/coverage-monitor-action@v1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          clover_file: "logs/clover.xml"
 ~~~
 
 ## Preview
