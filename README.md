@@ -28,12 +28,12 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 | `github_token` | Required. The GITHUB_TOKEN secret. |
 | `clover_file` | Required. Path to Clover XML file. |
 | `working_dir` | The working directory of the action. Defaults to workflow workspace. |
-| `check` | Whether check the coverage thresholds. Default to `true`. Ignored when event does not support checks, is not `pull_request`. |
-| `comment` | Whether comment the coverage report. Default to `true`. Ignored when event does not support comments, is not `pull_request`. |
 | `threshold_alert` | Mark the build as unstable when coverage is less than this threshold. Default to `50`. |
 | `threshold_warning` | Warning when coverage is less than this threshold. Default to `90`. |
 | `threshold_metric` | A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`. Default to `lines`. |
+| `check` | Whether check the coverage thresholds. Default to `true`. Ignored when event does not support checks, is not `pull_request`. |
 | `status_context` | A string label to differentiate this status from the status of other systems. Default to `Coverage Report`. |
+| `comment` | Whether comment the coverage report. Default to `true`. Ignored when event does not support comments, is not `pull_request`. |
 | `comment_context` | A string label to differentiate the comment posted by this action. Default to `Coverage Report`. |
 | `comment_mode` | A mode for comments, supported: `replace`, `update` or `insert`. Default to `replace`. |
 
