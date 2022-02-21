@@ -16,7 +16,10 @@
   "keywords": [
     "actions",
     "coverage",
-    "clover"
+    "clover",
+    "json-summary",
+    "istanbul-coverage-reports",
+    "nyc"
   ],
   "author": "Veaceslav Medvedev",
   "license": "MIT",
