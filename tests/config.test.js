@@ -232,6 +232,16 @@ describe(`${loadConfig.name}`, () => {
         coverageFormat: 'clover',
       },
     },
+    {
+      scenario: 'no alerts',
+      input: { github_token: '***', coverage_path: 'clover.xml', threshold_alert: 0 },
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        coveragePath: 'clover.xml',
+        threshold: { ...defaultOutput.threshold, alert: 0 },
+      },
+    },
   ])('loads config with $scenario', async ({ scenario, input, expected }) => {
     expect.hasAssertions();
     expect(loadConfig(core(input))).toStrictEqual(expected, scenario);

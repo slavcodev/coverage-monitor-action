@@ -20,7 +20,9 @@ function toBool(value, def) {
 }
 
 function toBips(value, def) {
-  return Math.round(Number(value) * 100) || def;
+  return value !== undefined
+    ? Math.round(Number(value) * 100)
+    : def;
 }
 
 function getWorkingDirectory() {

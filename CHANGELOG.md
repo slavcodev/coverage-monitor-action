@@ -18,6 +18,13 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.4.1] 2022-02-22
+
+### Fixed
+
+- Fixed using `0` in threshold config rather than using default value.
+  The default value is used only when threshold option is not set.
+
 ## [1.4.0] 2022-02-21
 
 ### Deprecated
