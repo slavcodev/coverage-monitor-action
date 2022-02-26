@@ -5,3 +5,7 @@
 
 # Node modules
 /node_modules/
+
+# Ignore built ts files
+tests/runner/*
+lib/**/*
