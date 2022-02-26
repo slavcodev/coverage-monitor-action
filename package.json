@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "eslint src/**",
     "test": "jest",
-    "build": "ncc build src/index.js -o dist"
+    "build": "ncc build --source-map --license licenses.txt src/index.js"
   },
   "repository": {
     "type": "git",
