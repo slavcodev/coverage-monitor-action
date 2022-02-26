@@ -97,7 +97,8 @@ describe(`${calculateLevel.name}`, () => {
     { rate: 90, threshold: defaultThreshold, level: 'green' },
     { rate: 91, threshold: defaultThreshold, level: 'green' },
     { rate: 100, threshold: defaultThreshold, level: 'green' },
-  ])('calculates level $rate with $threshold', async ({ rate, threshold, level }) => {
+    { rate: 95, threshold: { ...defaultThreshold, alert: 0 }, level: 'green' },
+  ])('calculates level $rate with $threshold is $level', async ({ rate, threshold, level }) => {
     expect.hasAssertions();
     expect(calculateLevel(rate, threshold)).toBe(level);
   });

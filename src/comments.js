@@ -19,21 +19,21 @@ function generateTableRow(title, {
 }
 
 function generateTable({
-  report,
+  report: { metrics, threshold: { metric } },
   context,
 }) {
-  const metric = report.metrics[report.threshold.metric];
+  const { rate, level } = metrics[metric];
 
   return `${generateCommentHeader({ context })}
-## ${context}${generateEmoji(metric)}
+## ${context}${generateEmoji({ rate })}
 
-|  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
+|  Totals | ![Coverage](${generateBadgeUrl({ rate, level })}) |
 | :-- | :-- |
 ${[
-    generateTableRow('Statements', report.metrics.statements),
-    generateTableRow('Methods', report.metrics.methods),
-    generateTableRow('Lines', report.metrics.lines),
-    generateTableRow('Branches', report.metrics.branches),
+    generateTableRow('Statements', metrics.statements),
+    generateTableRow('Methods', metrics.methods),
+    generateTableRow('Lines', metrics.lines),
+    generateTableRow('Branches', metrics.branches),
   ].join('')}`;
 }
 

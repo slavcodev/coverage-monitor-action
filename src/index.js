@@ -35,6 +35,8 @@ async function run() {
 
   const report = generateReport(threshold, await parseFile(workingDir, coveragePath, coverageFormat));
 
+  core.debug(`Report generated: ${JSON.stringify(report)}`);
+
   if (pr) {
     const client = github.getOctokit(githubToken).rest;
 

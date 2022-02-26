@@ -14941,21 +14941,21 @@ function generateTableRow(title, {
 }
 
 function generateTable({
-  report,
+  report: { metrics, threshold: { metric } },
   context,
 }) {
-  const metric = report.metrics[report.threshold.metric];
+  const { rate, level } = metrics[metric];
 
   return `${generateCommentHeader({ context })}
-## ${context}${generateEmoji(metric)}
+## ${context}${generateEmoji({ rate })}
 
-|  Totals | ![Coverage](${generateBadgeUrl(metric)}) |
+|  Totals | ![Coverage](${generateBadgeUrl({ rate, level })}) |
 | :-- | :-- |
 ${[
-    generateTableRow('Statements', report.metrics.statements),
-    generateTableRow('Methods', report.metrics.methods),
-    generateTableRow('Lines', report.metrics.lines),
-    generateTableRow('Branches', report.metrics.branches),
+    generateTableRow('Statements', metrics.statements),
+    generateTableRow('Methods', metrics.methods),
+    generateTableRow('Lines', metrics.lines),
+    generateTableRow('Branches', metrics.branches),
   ].join('')}`;
 }
 
@@ -14994,7 +14994,9 @@ function toBool(value, def) {
 }
 
 function toBips(value, def) {
-  return Math.round(Number(value) * 100) || def;
+  return value !== undefined
+    ? Math.round(Number(value) * 100)
+    : def;
 }
 
 function getWorkingDirectory() {
@@ -15636,6 +15638,8 @@ async function run() {
   }
 
   const report = generateReport(threshold, await parseFile(workingDir, coveragePath, coverageFormat));
+
+  core.debug(`Report generated: ${JSON.stringify(report)}`);
 
   if (pr) {
     const client = github.getOctokit(githubToken).rest;
