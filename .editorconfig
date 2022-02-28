@@ -14,7 +14,7 @@ max_line_length = 120
 [*.{diff,md}]
 trim_trailing_whitespace = false
 
-[*.{html,css,js,json,xml,yml,yaml}]
+[*.{html,css,ts,js,json,xml,yml,yaml}]
 indent_size = 2
 
 [*.txt]
