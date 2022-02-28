@@ -1,6 +1,866 @@
 require('./sourcemap-register.js');/******/ (() => { // webpackBootstrap
 /******/ 	var __webpack_modules__ = ({
 
+/***/ 4822:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    Object.defineProperty(o, k2, { enumerable: true, get: function() { return m[k]; } });
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const core = __importStar(__nccwpck_require__(2186));
+const github = __importStar(__nccwpck_require__(5438));
+const App_1 = __importDefault(__nccwpck_require__(491));
+(function () {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+            // @ts-ignore
+            const app = new App_1.default(core, github);
+            yield app.run();
+        }
+        catch (error) {
+            if (error instanceof Error)
+                core.setFailed(error.message);
+        }
+    });
+})();
+
+
+/***/ }),
+
+/***/ 491:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _App_core, _App_action;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const FileSystem_1 = __importDefault(__nccwpck_require__(664));
+const GitHubAdapter_1 = __importDefault(__nccwpck_require__(4281));
+const GitHubClientAdapter_1 = __importDefault(__nccwpck_require__(5192));
+const Threshold_1 = __importDefault(__nccwpck_require__(7321));
+class App {
+    constructor(core, action) {
+        _App_core.set(this, void 0);
+        _App_action.set(this, void 0);
+        __classPrivateFieldSet(this, _App_core, core, "f");
+        __classPrivateFieldSet(this, _App_action, action, "f");
+    }
+    run() {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (__classPrivateFieldGet(this, _App_core, "f").isDebug()) {
+                __classPrivateFieldGet(this, _App_core, "f").debug('Processing webhook request...');
+                console.log(__classPrivateFieldGet(this, _App_action, "f").context);
+            }
+            const adapter = new GitHubAdapter_1.default(__classPrivateFieldGet(this, _App_core, "f"));
+            const config = adapter.loadConfig();
+            const fs = new FileSystem_1.default(config.workingDir);
+            const coverage = yield fs.parseFile(config.coveragePath, config.coverageFormat);
+            const report = coverage.report(new Threshold_1.default(config.threshold.metric, config.threshold.alert, config.threshold.warning));
+            if (__classPrivateFieldGet(this, _App_core, "f").isDebug()) {
+                __classPrivateFieldGet(this, _App_core, "f").debug('Prepared coverage report');
+                console.log(report);
+            }
+            const client = new GitHubClientAdapter_1.default(__classPrivateFieldGet(this, _App_action, "f").getOctokit(config.githubToken).rest, __classPrivateFieldGet(this, _App_action, "f").context, adapter.parseWebhook(__classPrivateFieldGet(this, _App_action, "f").context));
+            const requests = [];
+            if (config.check) {
+                requests.push(client.createStatus(config.check.context, report));
+            }
+            if (config.comment) {
+                requests.push(client.commentReport(config.comment.mode, config.comment.context, report));
+            }
+            if (requests.length > 0) {
+                yield Promise.all(requests);
+            }
+        });
+    }
+}
+exports["default"] = App;
+_App_core = new WeakMap(), _App_action = new WeakMap();
+
+
+/***/ }),
+
+/***/ 8429:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const MetricType_1 = __importDefault(__nccwpck_require__(8865));
+class Comment {
+    constructor(metrics, result, context) {
+        this.metrics = metrics;
+        this.result = result;
+        this.context = context;
+    }
+    static generateBadgeUrl({ rate, level }) {
+        return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate / 100)}%&color=${level}`;
+    }
+    static generateEmoji({ rate }) {
+        return rate === 10000 ? ' 🎉' : '';
+    }
+    static generateTableRow(title, { rate, total, covered }) {
+        return total ? `| ${title}: | ${rate / 100}% ( ${covered} / ${total} ) |\n` : '';
+    }
+    generateCommentHeader() {
+        return `<!-- coverage-monitor-action: ${this.context} -->`;
+    }
+    generateTable() {
+        return `${this.generateCommentHeader()}
+## ${this.context}${Comment.generateEmoji(this.result)}
+
+|  Totals | ![Coverage](${Comment.generateBadgeUrl(this.result)}) |
+| :-- | :-- |
+${[
+            Comment.generateTableRow('Statements', this.metrics[MetricType_1.default.Statements]),
+            Comment.generateTableRow('Methods', this.metrics[MetricType_1.default.Methods]),
+            Comment.generateTableRow('Lines', this.metrics[MetricType_1.default.Lines]),
+            Comment.generateTableRow('Branches', this.metrics[MetricType_1.default.Branches]),
+        ].join('')}`;
+    }
+}
+exports["default"] = Comment;
+
+
+/***/ }),
+
+/***/ 3668:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var CommentMode;
+(function (CommentMode) {
+    CommentMode["Replace"] = "replace";
+    CommentMode["Insert"] = "insert";
+    CommentMode["Update"] = "update";
+})(CommentMode || (CommentMode = {}));
+exports["default"] = CommentMode;
+
+
+/***/ }),
+
+/***/ 1806:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class Configuration {
+    constructor({ githubToken, coveragePath, coverageFormat, workingDir, threshold, comment, check }) {
+        this.githubToken = githubToken;
+        this.coveragePath = coveragePath;
+        this.coverageFormat = coverageFormat;
+        this.workingDir = workingDir;
+        this.threshold = threshold;
+        this.githubToken = githubToken;
+        this.comment = comment;
+        this.check = check;
+    }
+}
+exports["default"] = Configuration;
+
+
+/***/ }),
+
+/***/ 2916:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const Metric_1 = __importDefault(__nccwpck_require__(6065));
+const MetricType_1 = __importDefault(__nccwpck_require__(8865));
+const Report_1 = __importDefault(__nccwpck_require__(3160));
+class CoverageSummary {
+    constructor(metrics) {
+        this.metrics = metrics;
+    }
+    report(threshold) {
+        return new Report_1.default({
+            [MetricType_1.default.Statements]: new Metric_1.default(this.metrics[MetricType_1.default.Statements]),
+            [MetricType_1.default.Lines]: new Metric_1.default(this.metrics[MetricType_1.default.Lines]),
+            [MetricType_1.default.Methods]: new Metric_1.default(this.metrics[MetricType_1.default.Methods]),
+            [MetricType_1.default.Branches]: new Metric_1.default(this.metrics[MetricType_1.default.Branches]),
+        }, threshold);
+    }
+}
+exports["default"] = CoverageSummary;
+
+
+/***/ }),
+
+/***/ 664:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _FileSystem_xmlParser, _FileSystem_jsonParser;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const CoverageSummary_1 = __importDefault(__nccwpck_require__(2916));
+const Format_1 = __importDefault(__nccwpck_require__(9466));
+const JsonParser_1 = __importDefault(__nccwpck_require__(7120));
+const XmlParser_1 = __importDefault(__nccwpck_require__(4355));
+const promises_1 = __importDefault(__nccwpck_require__(3292));
+const path_1 = __importDefault(__nccwpck_require__(1017));
+class FileSystem {
+    constructor(workingDir) {
+        this.workingDir = workingDir;
+        _FileSystem_xmlParser.set(this, void 0);
+        _FileSystem_jsonParser.set(this, void 0);
+        __classPrivateFieldSet(this, _FileSystem_xmlParser, new XmlParser_1.default(), "f");
+        __classPrivateFieldSet(this, _FileSystem_jsonParser, new JsonParser_1.default(), "f");
+    }
+    readFile(filename) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return (yield promises_1.default.readFile(path_1.default.join(this.workingDir, filename), { encoding: 'utf-8' })).replace('\ufeff', '');
+        });
+    }
+    guessFormat(filename) {
+        switch (filename.substring(filename.lastIndexOf('.') + 1)) {
+            case 'xml':
+                return Format_1.default.Clover;
+            case 'json':
+                return Format_1.default.JsonSummary;
+            default:
+                throw new Error(`Cannot guess format of "${filename}"`);
+        }
+    }
+    parseFile(filename, format) {
+        return __awaiter(this, void 0, void 0, function* () {
+            switch (format) {
+                case Format_1.default.Auto:
+                    return this.parseFile(filename, this.guessFormat(filename));
+                case Format_1.default.Clover:
+                    return new CoverageSummary_1.default(yield __classPrivateFieldGet(this, _FileSystem_xmlParser, "f").parseCloverXml(yield this.readFile(filename)));
+                case Format_1.default.JsonSummary:
+                    return new CoverageSummary_1.default(yield __classPrivateFieldGet(this, _FileSystem_jsonParser, "f").parseJsonSummary(yield this.readFile(filename)));
+                default:
+                    throw new Error(`Invalid option "coverage_format" - supported ${Object.values(Format_1.default).join(', ')}`);
+            }
+        });
+    }
+}
+exports["default"] = FileSystem;
+_FileSystem_xmlParser = new WeakMap(), _FileSystem_jsonParser = new WeakMap();
+
+
+/***/ }),
+
+/***/ 9466:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var Format;
+(function (Format) {
+    Format["Auto"] = "auto";
+    Format["Clover"] = "clover";
+    Format["JsonSummary"] = "json-summary";
+})(Format || (Format = {}));
+exports["default"] = Format;
+
+
+/***/ }),
+
+/***/ 7120:
+/***/ (function(__unused_webpack_module, exports) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var _JsonParser_instances, _JsonParser_parseJsonFile;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class JsonParser {
+    constructor() {
+        _JsonParser_instances.add(this);
+    }
+    parseJsonSummary(buffer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const { total } = __classPrivateFieldGet(this, _JsonParser_instances, "m", _JsonParser_parseJsonFile).call(this, buffer);
+            return {
+                statements: { total: Number(total.statements.total), covered: Number(total.statements.covered) },
+                lines: { total: Number(total.lines.total), covered: Number(total.lines.covered) },
+                methods: { total: Number(total.functions.total), covered: Number(total.functions.covered) },
+                branches: { total: Number(total.branches.total), covered: Number(total.branches.covered) },
+            };
+        });
+    }
+}
+exports["default"] = JsonParser;
+_JsonParser_instances = new WeakSet(), _JsonParser_parseJsonFile = function _JsonParser_parseJsonFile(buffer) {
+    return JSON.parse(buffer);
+};
+
+
+/***/ }),
+
+/***/ 6065:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+class Metric {
+    constructor({ total, covered }) {
+        this.total = total;
+        this.covered = covered;
+        this.rate = total ? Number(Number((covered / total) * 10000).toFixed(0)) : 0;
+    }
+    report(threshold) {
+        return Object.assign({ metric: threshold.metric, level: threshold.calc(this.rate) }, this);
+    }
+}
+exports["default"] = Metric;
+
+
+/***/ }),
+
+/***/ 2270:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var MetricLevel;
+(function (MetricLevel) {
+    MetricLevel["Red"] = "red";
+    MetricLevel["Yellow"] = "yellow";
+    MetricLevel["Green"] = "green";
+})(MetricLevel || (MetricLevel = {}));
+exports["default"] = MetricLevel;
+
+
+/***/ }),
+
+/***/ 8865:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var MetricType;
+(function (MetricType) {
+    MetricType["Lines"] = "lines";
+    MetricType["Statements"] = "statements";
+    MetricType["Branches"] = "branches";
+    MetricType["Methods"] = "methods";
+})(MetricType || (MetricType = {}));
+exports["default"] = MetricType;
+
+
+/***/ }),
+
+/***/ 3160:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const Comment_1 = __importDefault(__nccwpck_require__(8429));
+const Status_1 = __importDefault(__nccwpck_require__(8872));
+class Report {
+    constructor(metrics, threshold) {
+        this.metrics = metrics;
+        this.threshold = threshold;
+        this.result = this.metrics[this.threshold.metric].report(threshold);
+    }
+    toComment(context) {
+        return new Comment_1.default(this.metrics, this.result, context);
+    }
+    toStatus(context, targetUrl) {
+        return new Status_1.default(this.result, context, targetUrl);
+    }
+}
+exports["default"] = Report;
+
+
+/***/ }),
+
+/***/ 8872:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const MetricLevel_1 = __importDefault(__nccwpck_require__(2270));
+const StatusState_1 = __importDefault(__nccwpck_require__(3080));
+class Status {
+    constructor({ level, rate, metric }, context, target_url) {
+        this.context = context;
+        this.target_url = target_url;
+        if (level === MetricLevel_1.default.Red) {
+            this.state = StatusState_1.default.Failure;
+            this.description = `Error: Too low ${metric} coverage - ${rate / 100}%`;
+        }
+        else if (level === MetricLevel_1.default.Yellow) {
+            this.state = StatusState_1.default.Success;
+            this.description = `Warning: low ${metric} coverage - ${rate / 100}%`;
+        }
+        else {
+            this.state = StatusState_1.default.Success;
+            this.description = `Success: ${metric} coverage - ${rate / 100}%`;
+        }
+    }
+}
+exports["default"] = Status;
+
+
+/***/ }),
+
+/***/ 3080:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+var StatusState;
+(function (StatusState) {
+    StatusState["Success"] = "success";
+    StatusState["Failure"] = "failure";
+})(StatusState || (StatusState = {}));
+exports["default"] = StatusState;
+
+
+/***/ }),
+
+/***/ 7321:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const MetricLevel_1 = __importDefault(__nccwpck_require__(2270));
+class Threshold {
+    constructor(metric, alert, warning) {
+        this.metric = metric;
+        this.alert = alert;
+        this.warning = warning;
+    }
+    calc(rate) {
+        if (rate < this.alert) {
+            return MetricLevel_1.default.Red;
+        }
+        else if (rate < this.warning) {
+            return MetricLevel_1.default.Yellow;
+        }
+        else {
+            return MetricLevel_1.default.Green;
+        }
+    }
+}
+exports["default"] = Threshold;
+
+
+/***/ }),
+
+/***/ 4355:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _XmlParser_instances, _XmlParser_parser, _XmlParser_parseXmlFile;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const xml2js_1 = __importDefault(__nccwpck_require__(6189));
+class XmlParser {
+    constructor() {
+        _XmlParser_instances.add(this);
+        _XmlParser_parser.set(this, void 0);
+        // noinspection SpellCheckingInspection
+        __classPrivateFieldSet(this, _XmlParser_parser, new xml2js_1.default.Parser({
+            // Normalize all tag names to lowercase.
+            normalizeTags: true,
+            // Always put child nodes in an array if true; otherwise an array is created only if there is more than one.
+            explicitArray: true,
+            attrkey: 'attributes',
+            charkey: 'content',
+            childkey: 'children',
+            // Put child elements to separate property (see `childkey`).
+            explicitChildren: true,
+            // Set this if you want to get the root node in the resulting object.
+            explicitRoot: false,
+        }), "f");
+    }
+    parseCloverXml(buffer) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const xml = yield __classPrivateFieldGet(this, _XmlParser_instances, "m", _XmlParser_parseXmlFile).call(this, buffer);
+            const { elements, coveredelements, statements, coveredstatements, methods, coveredmethods, conditionals, coveredconditionals, } = xml.children.project[0].children.metrics[0].attributes;
+            return {
+                statements: { total: Number(elements), covered: Number(coveredelements) },
+                lines: { total: Number(statements), covered: Number(coveredstatements) },
+                methods: { total: Number(methods), covered: Number(coveredmethods) },
+                branches: { total: Number(conditionals), covered: Number(coveredconditionals) },
+            };
+        });
+    }
+}
+exports["default"] = XmlParser;
+_XmlParser_parser = new WeakMap(), _XmlParser_instances = new WeakSet(), _XmlParser_parseXmlFile = function _XmlParser_parseXmlFile(buffer) {
+    return __awaiter(this, void 0, void 0, function* () {
+        return (yield __classPrivateFieldGet(this, _XmlParser_parser, "f").parseStringPromise(buffer));
+    });
+};
+
+
+/***/ }),
+
+/***/ 4281:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _a, _GitHubAdapter_core, _GitHubAdapter_toBool, _GitHubAdapter_toBips, _GitHubAdapter_getWorkingDirectory;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const CommentMode_1 = __importDefault(__nccwpck_require__(3668));
+const Configuration_1 = __importDefault(__nccwpck_require__(1806));
+const Format_1 = __importDefault(__nccwpck_require__(9466));
+const MetricType_1 = __importDefault(__nccwpck_require__(8865));
+class GitHubAdapter {
+    constructor(core) {
+        _GitHubAdapter_core.set(this, void 0);
+        __classPrivateFieldSet(this, _GitHubAdapter_core, core, "f");
+    }
+    loadConfig() {
+        const githubToken = __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('github_token', { required: true });
+        const workingDir = __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('working_dir') || __classPrivateFieldGet(GitHubAdapter, _a, "m", _GitHubAdapter_getWorkingDirectory).call(GitHubAdapter);
+        const cloverFile = __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('clover_file');
+        const coveragePath = __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('coverage_path') || cloverFile;
+        const coverageFormat = (__classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('coverage_format') || Format_1.default.Auto);
+        const thresholdAlert = __classPrivateFieldGet(GitHubAdapter, _a, "m", _GitHubAdapter_toBips).call(GitHubAdapter, __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('threshold_alert'), 5000);
+        const thresholdWarning = __classPrivateFieldGet(GitHubAdapter, _a, "m", _GitHubAdapter_toBips).call(GitHubAdapter, __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('threshold_warning'), 9000);
+        const thresholdMetric = (__classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('threshold_metric') || MetricType_1.default.Lines);
+        const check = __classPrivateFieldGet(GitHubAdapter, _a, "m", _GitHubAdapter_toBool).call(GitHubAdapter, __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('check'), true);
+        const statusContext = __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('status_context') || 'Coverage Report';
+        const comment = __classPrivateFieldGet(GitHubAdapter, _a, "m", _GitHubAdapter_toBool).call(GitHubAdapter, __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('comment'), true);
+        const commentContext = __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('comment_context') || 'Coverage Report';
+        const commentMode = (__classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('comment_mode') || CommentMode_1.default.Replace);
+        if (cloverFile && coveragePath !== cloverFile) {
+            throw new Error('The `clover_file` option is deprecated and cannot be set along with `coverage_path`');
+        }
+        if (!coveragePath) {
+            throw new Error('Missing or invalid option `coverage_path`');
+        }
+        if (!Object.values(Format_1.default).includes(coverageFormat)) {
+            throw new Error(`Invalid option "coverage_format" - supported ${Object.values(Format_1.default).join(', ')}`);
+        }
+        if (!Object.values(MetricType_1.default).includes(thresholdMetric)) {
+            throw new Error(`Invalid option "threshold_metric" - supported ${Object.values(MetricType_1.default).join(', ')}`);
+        }
+        if (!Object.values(CommentMode_1.default).includes(commentMode)) {
+            throw new Error(`Invalid option "comment_mode" - supported ${Object.values(CommentMode_1.default).join(', ')}`);
+        }
+        return new Configuration_1.default({
+            githubToken,
+            coveragePath,
+            coverageFormat,
+            workingDir,
+            threshold: { alert: thresholdAlert, warning: thresholdWarning, metric: thresholdMetric },
+            comment: comment ? { context: commentContext, mode: commentMode } : undefined,
+            check: check ? { context: statusContext } : undefined,
+        });
+    }
+    parseWebhook(request) {
+        const { payload } = request || {};
+        if (!payload) {
+            throw new Error('Invalid github event');
+        }
+        const { pull_request: pr } = payload;
+        if (!pr) {
+            return undefined;
+        }
+        const { number, html_url: url, head: { sha } = {} } = pr;
+        if (!number || !url || !sha) {
+            throw new Error('Invalid pull_request event');
+        }
+        return { number, url, sha };
+    }
+}
+exports["default"] = GitHubAdapter;
+_a = GitHubAdapter, _GitHubAdapter_core = new WeakMap(), _GitHubAdapter_toBool = function _GitHubAdapter_toBool(value, def) {
+    if (typeof value === 'boolean') {
+        return value;
+    }
+    switch (`${value}`.toLowerCase()) {
+        case 'true':
+        case 'on':
+        case 'yes':
+            return true;
+        case 'false':
+        case 'off':
+        case 'no':
+            return false;
+        default:
+            return def;
+    }
+}, _GitHubAdapter_toBips = function _GitHubAdapter_toBips(value, def) {
+    return value !== undefined ? Math.round(Number(value) * 100) : def;
+}, _GitHubAdapter_getWorkingDirectory = function _GitHubAdapter_getWorkingDirectory() {
+    return process.env.GITHUB_WORKSPACE || process.cwd();
+};
+
+
+/***/ }),
+
+/***/ 5192:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
+var __classPrivateFieldSet = (this && this.__classPrivateFieldSet) || function (receiver, state, value, kind, f) {
+    if (kind === "m") throw new TypeError("Private method is not writable");
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a setter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot write private member to an object whose class did not declare it");
+    return (kind === "a" ? f.call(receiver, value) : f ? f.value = value : state.set(receiver, value)), value;
+};
+var __classPrivateFieldGet = (this && this.__classPrivateFieldGet) || function (receiver, state, kind, f) {
+    if (kind === "a" && !f) throw new TypeError("Private accessor was defined without a getter");
+    if (typeof state === "function" ? receiver !== state || !f : !state.has(receiver)) throw new TypeError("Cannot read private member from an object whose class did not declare it");
+    return kind === "m" ? f : kind === "a" ? f.call(receiver) : f ? f.value : state.get(receiver);
+};
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+var _GitHubClientAdapter_instances, _GitHubClientAdapter_client, _GitHubClientAdapter_context, _GitHubClientAdapter_pr, _GitHubClientAdapter_listComments, _GitHubClientAdapter_insertComment, _GitHubClientAdapter_updateComment, _GitHubClientAdapter_deleteComments, _GitHubClientAdapter_upsertComment, _GitHubClientAdapter_replaceComment;
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+const CommentMode_1 = __importDefault(__nccwpck_require__(3668));
+class GitHubClientAdapter {
+    constructor(client, context, pr) {
+        _GitHubClientAdapter_instances.add(this);
+        _GitHubClientAdapter_client.set(this, void 0);
+        _GitHubClientAdapter_context.set(this, void 0);
+        _GitHubClientAdapter_pr.set(this, void 0);
+        __classPrivateFieldSet(this, _GitHubClientAdapter_client, client, "f");
+        __classPrivateFieldSet(this, _GitHubClientAdapter_context, context, "f");
+        __classPrivateFieldSet(this, _GitHubClientAdapter_pr, pr, "f");
+    }
+    createStatus(context, report) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!__classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f")) {
+                return;
+            }
+            yield __classPrivateFieldGet(this, _GitHubClientAdapter_client, "f").repos.createCommitStatus(Object.assign(Object.assign(Object.assign({}, __classPrivateFieldGet(this, _GitHubClientAdapter_context, "f").repo), { sha: __classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f").sha }), report.toStatus(context, __classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f").url)));
+        });
+    }
+    commentReport(mode, context, report) {
+        return __awaiter(this, void 0, void 0, function* () {
+            if (!__classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f")) {
+                return;
+            }
+            const comment = report.toComment(context);
+            switch (mode) {
+                case CommentMode_1.default.Insert:
+                    return __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_insertComment).call(this, {
+                        prNumber: __classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f").number,
+                        body: comment.generateTable(),
+                    });
+                case CommentMode_1.default.Update:
+                    return __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_upsertComment).call(this, {
+                        prNumber: __classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f").number,
+                        body: comment.generateTable(),
+                        commentHeader: comment.generateCommentHeader(),
+                    });
+                case CommentMode_1.default.Replace:
+                default:
+                    return __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_replaceComment).call(this, {
+                        prNumber: __classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f").number,
+                        body: comment.generateTable(),
+                        commentHeader: comment.generateCommentHeader(),
+                    });
+            }
+        });
+    }
+}
+exports["default"] = GitHubClientAdapter;
+_GitHubClientAdapter_client = new WeakMap(), _GitHubClientAdapter_context = new WeakMap(), _GitHubClientAdapter_pr = new WeakMap(), _GitHubClientAdapter_instances = new WeakSet(), _GitHubClientAdapter_listComments = function _GitHubClientAdapter_listComments({ prNumber, commentHeader }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const { data: existingComments } = yield __classPrivateFieldGet(this, _GitHubClientAdapter_client, "f").issues.listComments(Object.assign(Object.assign({}, __classPrivateFieldGet(this, _GitHubClientAdapter_context, "f").repo), { issue_number: prNumber }));
+        return existingComments.filter(({ body }) => body.startsWith(commentHeader));
+    });
+}, _GitHubClientAdapter_insertComment = function _GitHubClientAdapter_insertComment({ prNumber, body }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield __classPrivateFieldGet(this, _GitHubClientAdapter_client, "f").issues.createComment(Object.assign(Object.assign({}, __classPrivateFieldGet(this, _GitHubClientAdapter_context, "f").repo), { issue_number: prNumber, body }));
+    });
+}, _GitHubClientAdapter_updateComment = function _GitHubClientAdapter_updateComment({ body, commentId }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield __classPrivateFieldGet(this, _GitHubClientAdapter_client, "f").issues.updateComment(Object.assign(Object.assign({}, __classPrivateFieldGet(this, _GitHubClientAdapter_context, "f").repo), { comment_id: commentId, body }));
+    });
+}, _GitHubClientAdapter_deleteComments = function _GitHubClientAdapter_deleteComments({ comments }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        yield Promise.all(comments.map(({ id }) => __awaiter(this, void 0, void 0, function* () { return __classPrivateFieldGet(this, _GitHubClientAdapter_client, "f").issues.deleteComment(Object.assign(Object.assign({}, __classPrivateFieldGet(this, _GitHubClientAdapter_context, "f").repo), { comment_id: id })); })));
+    });
+}, _GitHubClientAdapter_upsertComment = function _GitHubClientAdapter_upsertComment({ prNumber, body, commentHeader, }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const existingComments = yield __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_listComments).call(this, { prNumber, commentHeader });
+        const last = existingComments.pop();
+        yield Promise.all([
+            __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_deleteComments).call(this, { comments: existingComments }),
+            last ? __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_updateComment).call(this, { body, commentId: last.id }) : __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_insertComment).call(this, { prNumber, body }),
+        ]);
+    });
+}, _GitHubClientAdapter_replaceComment = function _GitHubClientAdapter_replaceComment({ prNumber, body, commentHeader, }) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const existingComments = yield __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_listComments).call(this, { prNumber, commentHeader });
+        yield Promise.all([__classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_deleteComments).call(this, { comments: existingComments }), __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_insertComment).call(this, { prNumber, body })]);
+    });
+};
+
+
+/***/ }),
+
 /***/ 7351:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -14874,541 +15734,6 @@ function wrappy (fn, cb) {
 
 /***/ }),
 
-/***/ 9546:
-/***/ ((module) => {
-
-function generateStatus({
-  report: { metrics, threshold: { metric } },
-  targetUrl,
-  context,
-}) {
-  const { rate, level } = metrics[metric];
-
-  if (level === 'red') {
-    return {
-      state: 'failure',
-      description: `Error: Too low ${metric} coverage - ${rate / 100}%`,
-      target_url: targetUrl,
-      context,
-    };
-  }
-
-  if (level === 'yellow') {
-    return {
-      state: 'success',
-      description: `Warning: low ${metric} coverage - ${rate / 100}%`,
-      target_url: targetUrl,
-      context,
-    };
-  }
-
-  return {
-    state: 'success',
-    description: `Success: ${metric} coverage - ${rate / 100}%`,
-    target_url: targetUrl,
-    context,
-  };
-}
-
-module.exports = {
-  generateStatus,
-};
-
-
-/***/ }),
-
-/***/ 4975:
-/***/ ((module) => {
-
-function generateBadgeUrl({ rate, level }) {
-  return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate / 100)}%&color=${level}`;
-}
-
-function generateEmoji({ rate }) {
-  return rate === 10000 ? ' 🎉' : '';
-}
-
-function generateCommentHeader({ context }) {
-  return `<!-- coverage-monitor-action: ${context} -->`;
-}
-
-function generateTableRow(title, {
-  rate,
-  total,
-  covered,
-}) {
-  return total ? `| ${title}: | ${rate / 100}% ( ${covered} / ${total} ) |\n` : '';
-}
-
-function generateTable({
-  report: { metrics, threshold: { metric } },
-  context,
-}) {
-  const { rate, level } = metrics[metric];
-
-  return `${generateCommentHeader({ context })}
-## ${context}${generateEmoji({ rate })}
-
-|  Totals | ![Coverage](${generateBadgeUrl({ rate, level })}) |
-| :-- | :-- |
-${[
-    generateTableRow('Statements', metrics.statements),
-    generateTableRow('Methods', metrics.methods),
-    generateTableRow('Lines', metrics.lines),
-    generateTableRow('Branches', metrics.branches),
-  ].join('')}`;
-}
-
-module.exports = {
-  generateBadgeUrl,
-  generateEmoji,
-  generateTable,
-  generateCommentHeader,
-};
-
-
-/***/ }),
-
-/***/ 4570:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const { formats } = __nccwpck_require__(4631);
-
-function toBool(value, def) {
-  if (typeof value === 'boolean') {
-    return value;
-  }
-
-  switch (`${value}`.toLowerCase()) {
-    case 'true':
-    case 'on':
-    case 'yes':
-      return true;
-    case 'false':
-    case 'off':
-    case 'no':
-      return false;
-    default:
-      return def;
-  }
-}
-
-function toBips(value, def) {
-  return value !== undefined
-    ? Math.round(Number(value) * 100)
-    : def;
-}
-
-function getWorkingDirectory() {
-  return process.env.GITHUB_WORKSPACE || process.cwd();
-}
-
-function loadConfig({ getInput }) {
-  const githubToken = getInput('github_token', { required: true });
-  const workingDir = getInput('working_dir') || getWorkingDirectory();
-
-  const cloverFile = getInput('clover_file');
-  const coveragePath = getInput('coverage_path') || cloverFile;
-  const coverageFormat = getInput('coverage_format') || formats.FORMAT_AUTO;
-
-  const thresholdAlert = toBips(getInput('threshold_alert'), 5000);
-  const thresholdWarning = toBips(getInput('threshold_warning'), 9000);
-  const thresholdMetric = getInput('threshold_metric') || 'lines';
-
-  const check = toBool(getInput('check'), true);
-  const statusContext = getInput('status_context') || 'Coverage Report';
-
-  const comment = toBool(getInput('comment'), true);
-  const commentContext = getInput('comment_context') || 'Coverage Report';
-  let commentMode = getInput('comment_mode');
-
-  if (!['replace', 'update', 'insert'].includes(commentMode)) {
-    commentMode = 'replace';
-  }
-
-  if (cloverFile && coveragePath !== cloverFile) {
-    throw new Error('The `clover_file` option is deprecated and cannot be set along with `coverage_path`');
-  }
-
-  if (!coveragePath) {
-    throw new Error('Missing or invalid option `coverage_path`');
-  }
-
-  if (!Object.values(formats).includes(coverageFormat)) {
-    throw new Error(
-      `Invalid option \`coverage_format\` - supported ${Object.values(formats).join(', ')}`,
-    );
-  }
-
-  return {
-    githubToken,
-    coveragePath,
-    coverageFormat,
-    workingDir,
-    threshold: {
-      alert: thresholdAlert,
-      warning: thresholdWarning,
-      metric: ['statements', 'lines', 'methods', 'branches'].includes(thresholdMetric)
-        ? thresholdMetric
-        : 'lines',
-    },
-    comment: comment
-      ? {
-        context: commentContext,
-        mode: commentMode,
-      }
-      : undefined,
-    check: check
-      ? { context: statusContext }
-      : undefined,
-  };
-}
-
-module.exports = {
-  loadConfig,
-};
-
-
-/***/ }),
-
-/***/ 4631:
-/***/ ((module) => {
-
-const FORMAT_AUTO = 'auto';
-const FORMAT_CLOVER = 'clover';
-const FORMAT_JSON_SUMMARY = 'json-summary';
-
-module.exports = {
-  formats: { FORMAT_AUTO, FORMAT_CLOVER, FORMAT_JSON_SUMMARY },
-};
-
-
-/***/ }),
-
-/***/ 9110:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const fs = __nccwpck_require__(3292);
-const path = __nccwpck_require__(1017);
-const { parseCloverXml } = __nccwpck_require__(193);
-const { parseJsonSummary } = __nccwpck_require__(767);
-const { formats } = __nccwpck_require__(4631);
-
-async function readFile(workingDir, filename) {
-  // TODO: `.replace('\ufeff', ''))`
-  return fs.readFile(path.join(workingDir, filename), { encoding: 'utf-8' });
-}
-
-function guessFormat(filename) {
-  switch (filename.substring(filename.lastIndexOf('.') + 1)) {
-    case 'xml':
-      return formats.FORMAT_CLOVER;
-    case 'json':
-      return formats.FORMAT_JSON_SUMMARY;
-    default:
-      throw new Error(`Cannot guess format of "${filename}"`);
-  }
-}
-
-async function parseFile(workingDir, filename, format) {
-  switch (format) {
-    case formats.FORMAT_AUTO:
-      return parseFile(workingDir, filename, guessFormat(filename));
-    case formats.FORMAT_CLOVER:
-      return parseCloverXml(await readFile(workingDir, filename));
-    case formats.FORMAT_JSON_SUMMARY:
-      return parseJsonSummary(await readFile(workingDir, filename));
-    default:
-      throw new Error(
-        `Invalid option \`coverage_format\` - supported ${Object.values(formats).join(', ')}`,
-      );
-  }
-}
-
-module.exports = {
-  parseFile,
-};
-
-
-/***/ }),
-
-/***/ 8396:
-/***/ ((module) => {
-
-const createStatus = async ({
-  client,
-  context,
-  sha,
-  status,
-}) => client.repos.createCommitStatus({
-  ...context.repo,
-  sha,
-  ...status,
-});
-
-const listComments = async ({
-  client,
-  context,
-  prNumber,
-  commentHeader,
-}) => {
-  const { data: existingComments } = await client.issues.listComments({
-    ...context.repo,
-    issue_number: prNumber,
-  });
-
-  return existingComments.filter(({ body }) => body.startsWith(commentHeader));
-};
-
-const insertComment = async ({
-  client,
-  context,
-  prNumber,
-  body,
-}) => client.issues.createComment({
-  ...context.repo,
-  issue_number: prNumber,
-  body,
-});
-
-const updateComment = async ({
-  client,
-  context,
-  body,
-  commentId,
-}) => client.issues.updateComment({
-  ...context.repo,
-  comment_id: commentId,
-  body,
-});
-
-const deleteComments = async ({
-  client,
-  context,
-  comments,
-}) => Promise.all(
-  comments.map(({ id }) => client.issues.deleteComment({
-    ...context.repo,
-    comment_id: id,
-  })),
-);
-
-const upsertComment = async ({
-  client,
-  context,
-  prNumber,
-  body,
-  existingComments,
-}) => {
-  const last = existingComments.pop();
-
-  await deleteComments({
-    client,
-    context,
-    comments: existingComments,
-  });
-
-  return last
-    ? updateComment({
-      client,
-      context,
-      body,
-      commentId: last.id,
-    })
-    : insertComment({
-      client,
-      context,
-      prNumber,
-      body,
-    });
-};
-
-const replaceComment = async ({
-  client,
-  context,
-  prNumber,
-  body,
-  existingComments,
-}) => {
-  await deleteComments({
-    client,
-    context,
-    comments: existingComments,
-  });
-
-  return insertComment({
-    client,
-    context,
-    prNumber,
-    body,
-  });
-};
-
-function parseWebhook(request) {
-  const { payload } = request || {};
-
-  if (!payload) {
-    throw new Error('Invalid github event');
-  }
-
-  const { pull_request: pr } = payload;
-
-  if (pr) {
-    const { number, html_url: url, head: { sha } = {} } = pr;
-
-    if (!number || !url || !sha) {
-      throw new Error('Invalid pull_request event');
-    }
-
-    return { pr: { number, url, sha } };
-  }
-
-  return { pr: undefined };
-}
-
-module.exports = {
-  createStatus,
-  listComments,
-  insertComment,
-  updateComment,
-  deleteComments,
-  upsertComment,
-  replaceComment,
-  parseWebhook,
-};
-
-
-/***/ }),
-
-/***/ 767:
-/***/ ((module) => {
-
-async function parseJsonFile(buffer) {
-  return JSON.parse(buffer);
-}
-
-async function parseJsonSummary(buffer) {
-  const { total } = (await parseJsonFile(buffer));
-
-  return {
-    statements: { total: Number(total.statements.total), covered: Number(total.statements.covered) },
-    lines: { total: Number(total.lines.total), covered: Number(total.lines.covered) },
-    methods: { total: Number(total.functions.total), covered: Number(total.functions.covered) },
-    branches: { total: Number(total.branches.total), covered: Number(total.branches.covered) },
-  };
-}
-
-module.exports = {
-  parseJsonSummary,
-};
-
-
-/***/ }),
-
-/***/ 7098:
-/***/ ((module) => {
-
-function calculateLevel(rate, { alert, warning }) {
-  if (rate < alert) {
-    return 'red';
-  }
-
-  if (rate < warning) {
-    return 'yellow';
-  }
-
-  return 'green';
-}
-
-function calcMetric(threshold, total, covered) {
-  // Use bips, rather than percentage, prefer integer arther than float.
-  const rate = total
-    ? Number((Number((covered / total) * 10000).toFixed(0)))
-    : 0;
-
-  const level = calculateLevel(rate, threshold);
-
-  return {
-    total,
-    covered,
-    rate,
-    level,
-  };
-}
-
-function generateReport(threshold, coverage) {
-  return {
-    threshold,
-    metrics: {
-      statements: calcMetric(threshold, coverage.statements.total, coverage.statements.covered),
-      lines: calcMetric(threshold, coverage.lines.total, coverage.lines.covered),
-      methods: calcMetric(threshold, coverage.methods.total, coverage.methods.covered),
-      branches: calcMetric(threshold, coverage.branches.total, coverage.branches.covered),
-    },
-  };
-}
-
-module.exports = {
-  calculateLevel,
-  generateReport,
-};
-
-
-/***/ }),
-
-/***/ 193:
-/***/ ((module, __unused_webpack_exports, __nccwpck_require__) => {
-
-const xml2js = __nccwpck_require__(6189);
-
-// noinspection SpellCheckingInspection
-const parser = new xml2js.Parser({
-  // Normalize all tag names to lowercase.
-  normalizeTags: true,
-  // Always put child nodes in an array if true; otherwise an array is created only if there is more than one.
-  explicitArray: true,
-  attrkey: 'attributes',
-  charkey: 'content',
-  childkey: 'children',
-  // Put child elements to separate property (see `childkey`).
-  explicitChildren: true,
-  // Set this if you want to get the root node in the resulting object.
-  explicitRoot: false,
-});
-
-async function parseXmlFile(buffer) {
-  return parser.parseStringPromise(buffer);
-}
-
-async function parseCloverXml(buffer) {
-  const xml = await parseXmlFile(buffer);
-
-  const {
-    elements,
-    coveredelements,
-    statements,
-    coveredstatements,
-    methods,
-    coveredmethods,
-    conditionals,
-    coveredconditionals,
-  } = xml.children.project[0].children.metrics[0].attributes;
-
-  return {
-    statements: { total: Number(elements), covered: Number(coveredelements) },
-    lines: { total: Number(statements), covered: Number(coveredstatements) },
-    methods: { total: Number(methods), covered: Number(coveredmethods) },
-    branches: { total: Number(conditionals), covered: Number(coveredconditionals) },
-  };
-}
-
-module.exports = {
-  parseCloverXml,
-};
-
-
-/***/ }),
-
 /***/ 2877:
 /***/ ((module) => {
 
@@ -15599,116 +15924,13 @@ module.exports = JSON.parse('[[[0,44],"disallowed_STD3_valid"],[[45,46],"valid"]
 /******/ 	if (typeof __nccwpck_require__ !== 'undefined') __nccwpck_require__.ab = __dirname + "/";
 /******/ 	
 /************************************************************************/
-var __webpack_exports__ = {};
-// This entry need to be wrapped in an IIFE because it need to be isolated against other modules in the chunk.
-(() => {
-const core = __nccwpck_require__(2186);
-const github = __nccwpck_require__(5438);
-const { loadConfig } = __nccwpck_require__(4570);
-const { generateStatus } = __nccwpck_require__(9546);
-const { generateTable, generateCommentHeader } = __nccwpck_require__(4975);
-const { parseFile } = __nccwpck_require__(9110);
-const { generateReport } = __nccwpck_require__(7098);
-const {
-  createStatus,
-  listComments,
-  insertComment,
-  upsertComment,
-  replaceComment,
-  parseWebhook,
-} = __nccwpck_require__(8396);
-
-async function run() {
-  const {
-    comment,
-    check,
-    githubToken,
-    coveragePath,
-    coverageFormat,
-    workingDir,
-    threshold,
-  } = loadConfig(core);
-
-  const { context = {} } = github || {};
-  const { pr } = parseWebhook(context);
-
-  if (core.isDebug()) {
-    core.debug('Handle webhook request');
-    console.log(context);
-  }
-
-  const report = generateReport(threshold, await parseFile(workingDir, coveragePath, coverageFormat));
-
-  core.debug(`Report generated: ${JSON.stringify(report)}`);
-
-  if (pr) {
-    const client = github.getOctokit(githubToken).rest;
-
-    if (check) {
-      await createStatus({
-        client,
-        context,
-        sha: pr.sha,
-        status: generateStatus({
-          report,
-          targetUrl: pr.url,
-          ...check,
-        }),
-      });
-    }
-
-    if (comment) {
-      const message = generateTable({ report, ...comment });
-
-      switch (comment.mode) {
-        case 'insert':
-          await insertComment({
-            client,
-            context,
-            prNumber: pr.number,
-            body: message,
-          });
-
-          break;
-        case 'update':
-          await upsertComment({
-            client,
-            context,
-            prNumber: pr.number,
-            body: message,
-            existingComments: await listComments({
-              client,
-              context,
-              prNumber: pr.number,
-              commentHeader: generateCommentHeader({ ...comment }),
-            }),
-          });
-
-          break;
-        case 'replace':
-        default:
-          await replaceComment({
-            client,
-            context,
-            prNumber: pr.number,
-            body: message,
-            existingComments: await listComments({
-              client,
-              context,
-              prNumber: pr.number,
-              commentHeader: generateCommentHeader({ ...comment }),
-            }),
-          });
-      }
-    }
-  }
-}
-
-run().catch((error) => core.setFailed(error.message));
-
-})();
-
-module.exports = __webpack_exports__;
+/******/ 	
+/******/ 	// startup
+/******/ 	// Load entry module and return exports
+/******/ 	// This entry module is referenced by other modules so it can't be inlined
+/******/ 	var __webpack_exports__ = __nccwpck_require__(4822);
+/******/ 	module.exports = __webpack_exports__;
+/******/ 	
 /******/ })()
 ;
 //# sourceMappingURL=index.js.map
