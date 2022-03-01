@@ -18,6 +18,12 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.5.0] 2022-03-01
+
+### Changed
+
+- Rewrote the action using TypeScript. 
+
 ## [1.4.1] 2022-02-22
 
 ### Fixed
