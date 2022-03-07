@@ -125,7 +125,7 @@ class App {
                 requests.push(client.createStatus(config.check.context, report));
             }
             if (config.comment) {
-                requests.push(client.commentReport(config.comment.mode, config.comment.context, report));
+                requests.push(client.commentReport(config.comment, config.comment.context, report));
             }
             if (requests.length > 0) {
                 yield Promise.all(requests);
@@ -150,16 +150,20 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 const MetricType_1 = __importDefault(__nccwpck_require__(8865));
 class Comment {
-    constructor(metrics, result, context) {
+    constructor(metrics, result, context, footer) {
         this.metrics = metrics;
         this.result = result;
         this.context = context;
+        this.footer = footer;
     }
     static generateBadgeUrl({ rate, level }) {
         return `https://img.shields.io/static/v1?label=coverage&message=${Math.round(rate / 100)}%&color=${level}`;
     }
     static generateEmoji({ rate }) {
         return rate === 10000 ? ' 🎉' : '';
+    }
+    static generateFooter() {
+        return `\n### [![StandWithUkraine](https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg)](https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md)`;
     }
     static generateTableRow(title, { rate, total, covered }) {
         return total ? `| ${title}: | ${rate / 100}% ( ${covered} / ${total} ) |\n` : '';
@@ -178,7 +182,7 @@ ${[
             Comment.generateTableRow('Methods', this.metrics[MetricType_1.default.Methods]),
             Comment.generateTableRow('Lines', this.metrics[MetricType_1.default.Lines]),
             Comment.generateTableRow('Branches', this.metrics[MetricType_1.default.Branches]),
-        ].join('')}`;
+        ].join('')}${this.footer ? Comment.generateFooter() : ''}`;
     }
 }
 exports["default"] = Comment;
@@ -471,8 +475,8 @@ class Report {
         this.threshold = threshold;
         this.result = this.metrics[this.threshold.metric].report(threshold);
     }
-    toComment(context) {
-        return new Comment_1.default(this.metrics, this.result, context);
+    toComment(context, footer) {
+        return new Comment_1.default(this.metrics, this.result, context, footer);
     }
     toStatus(context, targetUrl) {
         return new Status_1.default(this.result, context, targetUrl);
@@ -681,6 +685,7 @@ class GitHubAdapter {
         const check = __classPrivateFieldGet(GitHubAdapter, _a, "m", _GitHubAdapter_toBool).call(GitHubAdapter, __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('check'), true);
         const statusContext = __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('status_context') || 'Coverage Report';
         const comment = __classPrivateFieldGet(GitHubAdapter, _a, "m", _GitHubAdapter_toBool).call(GitHubAdapter, __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('comment'), true);
+        const commentFooter = __classPrivateFieldGet(GitHubAdapter, _a, "m", _GitHubAdapter_toBool).call(GitHubAdapter, __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('comment_footer'), true);
         const commentContext = __classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('comment_context') || 'Coverage Report';
         const commentMode = (__classPrivateFieldGet(this, _GitHubAdapter_core, "f").getInput('comment_mode') || CommentMode_1.default.Replace);
         if (cloverFile && coveragePath !== cloverFile) {
@@ -704,7 +709,7 @@ class GitHubAdapter {
             coverageFormat,
             workingDir,
             threshold: { alert: thresholdAlert, warning: thresholdWarning, metric: thresholdMetric },
-            comment: comment ? { context: commentContext, mode: commentMode } : undefined,
+            comment: comment ? { context: commentContext, mode: commentMode, footer: commentFooter } : undefined,
             check: check ? { context: statusContext } : undefined,
         });
     }
@@ -799,12 +804,12 @@ class GitHubClientAdapter {
             yield __classPrivateFieldGet(this, _GitHubClientAdapter_client, "f").repos.createCommitStatus(Object.assign(Object.assign(Object.assign({}, __classPrivateFieldGet(this, _GitHubClientAdapter_context, "f").repo), { sha: __classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f").sha }), report.toStatus(context, __classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f").url)));
         });
     }
-    commentReport(mode, context, report) {
+    commentReport({ mode, footer }, context, report) {
         return __awaiter(this, void 0, void 0, function* () {
             if (!__classPrivateFieldGet(this, _GitHubClientAdapter_pr, "f")) {
                 return;
             }
-            const comment = report.toComment(context);
+            const comment = report.toComment(context, footer);
             switch (mode) {
                 case CommentMode_1.default.Insert:
                     return __classPrivateFieldGet(this, _GitHubClientAdapter_instances, "m", _GitHubClientAdapter_insertComment).call(this, {

@@ -18,6 +18,13 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.6.0] 2022-03-07
+
+### Added
+
+- Added footer to comment and add a boolean option `comment_footer`, defaults to `true`.
+- Expressed the support of Ukraine in this difficult time.
+
 ## [1.5.0] 2022-03-01
 
 ### Changed

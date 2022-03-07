@@ -3,14 +3,17 @@
 [![Status][ico-github-actions]][link-github]
 [![Latest Version][ico-version]][link-github]
 [![License][ico-license]][link-license]
+[![License][ico-stand-with-ukraine]][link-stand-with-ukraine]
 
 [ico-github-actions]: https://github.com/slavcodev/coverage-monitor-action/workflows/build/badge.svg
 [ico-version]: https://img.shields.io/github/tag/slavcodev/coverage-monitor-action.svg?label=latest
 [ico-license]: https://img.shields.io/badge/License-MIT-blue.svg
+[ico-stand-with-ukraine]: https://raw.githubusercontent.com/vshymanskyy/StandWithUkraine/main/badges/StandWithUkraine.svg
 
 [link-github]: https://github.com/slavcodev/coverage-monitor-action
 [link-license]: LICENSE
 [link-contributing]: .github/CONTRIBUTING.md
+[link-stand-with-ukraine]: https://github.com/vshymanskyy/StandWithUkraine/blob/main/docs/README.md
 
 A GitHub Action that monitor coverage.
 
@@ -30,14 +33,15 @@ Create a workflow `.yml` file in your repositories `.github/workflows` directory
 | `coverage_format` | Format of coverage, supported: `auto`, `clover` and `json-summary`. Defaults to `auto`. |
 | `working_dir` | The working directory of the action. Defaults to workflow workspace. |
 | `clover_file` | **Deprecated.** Path to Clover XML file. Prefer `coverage_path` instead of `clover_file`. |
-| `threshold_alert` | Mark the build as unstable when coverage is less than this threshold. Default to `50`. |
-| `threshold_warning` | Warning when coverage is less than this threshold. Default to `90`. |
-| `threshold_metric` | A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`. Default to `lines`. |
+| `threshold_alert` | Mark the build as unstable when coverage is less than this threshold. Defaults to `50`. |
+| `threshold_warning` | Warning when coverage is less than this threshold. Defaults to `90`. |
+| `threshold_metric` | A metric to check threshold on, supported: `statements`, `lines`, `methods` or `branches`. Defaults to `lines`. |
 | `check` | Whether check the coverage thresholds. Default to `true`. Ignored when event does not support checks, is not `pull_request`. |
-| `status_context` | A string label to differentiate this status from the status of other systems. Default to `Coverage Report`. |
+| `status_context` | A string label to differentiate this status from the status of other systems. Defaults to `Coverage Report`. |
 | `comment` | Whether comment the coverage report. Default to `true`. Ignored when event does not support comments, is not `pull_request`. |
-| `comment_context` | A string label to differentiate the comment posted by this action. Default to `Coverage Report`. |
-| `comment_mode` | A mode for comments, supported: `replace`, `update` or `insert`. Default to `replace`. |
+| `comment_context` | A string label to differentiate the comment posted by this action. Defaults to `Coverage Report`. |
+| `comment_mode` | A mode for comments, supported: `replace`, `update` or `insert`. Defaults to `replace`. |
+| `comment_footer` | Whether comment may contain footer. Defaults to `true`.
 
 ### Example workflow 
 

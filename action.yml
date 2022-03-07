@@ -58,6 +58,10 @@ inputs:
     description: "A mode for comments, supported: `replace`, `update` or `insert`."
     required: false
     default: 'replace'
+  comment_footer:
+    description: "Whether comment may contain footer."
+    required: false
+    default: 'true'
 runs:
   using: 'node16'
   main: 'dist/index.js'

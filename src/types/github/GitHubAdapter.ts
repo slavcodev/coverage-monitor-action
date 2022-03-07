@@ -57,6 +57,7 @@ export default class GitHubAdapter {
     const statusContext = this.#core.getInput('status_context') || 'Coverage Report';
 
     const comment = GitHubAdapter.#toBool(this.#core.getInput('comment'), true);
+    const commentFooter = GitHubAdapter.#toBool(this.#core.getInput('comment_footer'), true);
     const commentContext = this.#core.getInput('comment_context') || 'Coverage Report';
     const commentMode = (this.#core.getInput('comment_mode') || CommentMode.Replace) as CommentMode;
 
@@ -86,7 +87,7 @@ export default class GitHubAdapter {
       coverageFormat,
       workingDir,
       threshold: {alert: thresholdAlert, warning: thresholdWarning, metric: thresholdMetric},
-      comment: comment ? {context: commentContext, mode: commentMode} : undefined,
+      comment: comment ? {context: commentContext, mode: commentMode, footer: commentFooter} : undefined,
       check: check ? {context: statusContext} : undefined,
     });
   }

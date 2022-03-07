@@ -58,7 +58,7 @@ describe(`${Comment.name}`, () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(report.toComment('foobar coverage').generateTable()).toBe(expectedString);
+    expect(report.toComment('foobar coverage', false).generateTable()).toBe(expectedString);
   });
 
   it('hides metric rows in table when metric is not available (total is zero)', async () => {
@@ -84,6 +84,32 @@ describe(`${Comment.name}`, () => {
 | Branches: | 40% ( 4 / 10 ) |
 `;
 
-    expect(report.toComment('Coverage Report').generateTable()).toBe(expectedString);
+    expect(report.toComment('Coverage Report', false).generateTable()).toBe(expectedString);
+  });
+
+  it('appends footer if enabled', async () => {
+    expect.hasAssertions();
+
+    const report: Report = new Report(
+      {
+        statements: new Metric({total: 10, covered: 1}),
+        lines: new Metric({total: 10, covered: 2}),
+        methods: new Metric({total: 0, covered: 0}),
+        branches: new Metric({total: 10, covered: 4}),
+      },
+      new Threshold(MetricType.Branches, 30, 5000),
+    );
+
+    const expectedString = `<!-- coverage-monitor-action: Coverage Report -->
+## Coverage Report
+
+|  Totals | ![Coverage](https://img.shields.io/static/v1?label=coverage&message=40%&color=yellow) |
+| :-- | :-- |
+| Statements: | 10% ( 1 / 10 ) |
+| Lines: | 20% ( 2 / 10 ) |
+| Branches: | 40% ( 4 / 10 ) |
+${Comment.generateFooter()}`;
+
+    expect(report.toComment('Coverage Report', true).generateTable()).toBe(expectedString);
   });
 });

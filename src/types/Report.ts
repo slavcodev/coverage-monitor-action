@@ -11,8 +11,8 @@ export default class Report {
     this.result = this.metrics[this.threshold.metric].report(threshold);
   }
 
-  toComment(context: string): Comment {
-    return new Comment(this.metrics, this.result, context);
+  toComment(context: string, footer: boolean): Comment {
+    return new Comment(this.metrics, this.result, context, footer);
   }
 
   toStatus(context: string, targetUrl: string): Status {
