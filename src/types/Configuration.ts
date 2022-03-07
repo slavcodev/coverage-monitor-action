@@ -1,5 +1,5 @@
 import Bips from './Bips';
-import CommentMode from './CommentMode';
+import CommentConfiguration from './CommentConfiguration';
 import MetricType from './MetricType';
 
 export default class Configuration {
@@ -12,10 +12,7 @@ export default class Configuration {
     alert: Bips;
     warning: Bips;
   };
-  readonly comment?: {
-    mode: CommentMode;
-    context: string;
-  };
+  readonly comment?: CommentConfiguration;
   readonly check?: {
     context: string;
   };

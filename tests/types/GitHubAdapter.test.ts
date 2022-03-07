@@ -25,6 +25,7 @@ describe(`${GitHubAdapter.name}`, () => {
     comment: {
       context: 'Coverage Report',
       mode: 'replace',
+      footer: true,
     },
     check: {
       context: 'Coverage Report',
@@ -214,6 +215,7 @@ describe(`${GitHubAdapter.name}`, () => {
         comment: {
           context: 'Foobar',
           mode: 'insert',
+          footer: true,
         },
       },
     },
@@ -232,6 +234,21 @@ describe(`${GitHubAdapter.name}`, () => {
         comment: {
           context: 'Coverage Report',
           mode: 'replace',
+          footer: true,
+        },
+      },
+    },
+    {
+      scenario: 'comment footer disabled ',
+      input: {github_token: '***', coverage_path: 'clover.xml', comment_footer: false},
+      expected: {
+        ...defaultOutput,
+        githubToken: '***',
+        coveragePath: 'clover.xml',
+        comment: {
+          context: 'Coverage Report',
+          mode: 'replace',
+          footer: false,
         },
       },
     },

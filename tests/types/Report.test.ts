@@ -66,7 +66,7 @@ describe(`${Report.name}`, () => {
   it('provides report comment', async () => {
     expect.hasAssertions();
     const report: Report = new Report(metrics, new Threshold(MetricType.Branches, 3000, 5000));
-    const comment = report.toComment('Comment context');
+    const comment = report.toComment('Comment context', false);
     expect(comment.context).toBe('Comment context');
     expect(comment.result).toStrictEqual({
       total: 10,

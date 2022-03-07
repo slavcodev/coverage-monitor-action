@@ -46,7 +46,7 @@ export default class App {
     }
 
     if (config.comment) {
-      requests.push(client.commentReport(config.comment.mode, config.comment.context, report));
+      requests.push(client.commentReport(config.comment, config.comment.context, report));
     }
 
     if (requests.length > 0) {

@@ -1,3 +1,4 @@
+import CommentConfiguration from '../CommentConfiguration';
 import CommentMode from '../CommentMode';
 import GitHubClient from './GitHubClient';
 import GitHubComment from './GiHubComment';
@@ -28,12 +29,12 @@ export default class GitHubClientAdapter {
     });
   }
 
-  async commentReport(mode: CommentMode, context: string, report: Report): Promise<void> {
+  async commentReport({mode, footer}: CommentConfiguration, context: string, report: Report): Promise<void> {
     if (!this.#pr) {
       return;
     }
 
-    const comment = report.toComment(context);
+    const comment = report.toComment(context, footer);
 
     switch (mode) {
       case CommentMode.Insert:
