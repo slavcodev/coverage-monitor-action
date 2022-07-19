@@ -5,11 +5,13 @@ on:
       - main
     paths:
       - '**.js'
+      - '**.json'
   push:
     branches:
       - main
     paths:
       - '**.js'
+      - '**.json'
 
 jobs:
   build:
