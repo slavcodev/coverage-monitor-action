@@ -12,3 +12,9 @@ updates:
       interval: "daily"
     assignees:
       - "slavcodev"
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    assignees:
+      - "slavcodev"
