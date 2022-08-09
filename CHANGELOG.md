@@ -18,6 +18,12 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.8.0] 2022-08-09
+
+### Changed
+ 
+- Updated dependencies.
+
 ## [1.7.0] 2022-07-15
 
 ### Changed
