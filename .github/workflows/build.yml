@@ -41,7 +41,8 @@ jobs:
 
       - run: npm run lint
 
-      - name: Monitor coverage
+      - if: github.event_name == 'pull_request' && ! contains(github.event.pull_request.user.login, 'dependabot[bot]')
+        name: Monitor coverage
         id: coverage-monitor-clover
         uses: ./
         with:
@@ -49,7 +50,8 @@ jobs:
           coverage_path: ".coverage/clover.xml"
           comment_context: "Coverage from clover"
 
-      - name: Monitor coverage
+      - if: github.event_name == 'pull_request' && ! contains(github.event.pull_request.user.login, 'dependabot[bot]')
+        name: Monitor coverage
         id: coverage-monitor-json
         uses: ./
         with:
