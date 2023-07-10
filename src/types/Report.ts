@@ -7,7 +7,10 @@ import Threshold from './Threshold';
 export default class Report {
   readonly result: ReportResult;
 
-  constructor(readonly metrics: MetricCollection, readonly threshold: Threshold) {
+  constructor(
+    readonly metrics: MetricCollection,
+    readonly threshold: Threshold,
+  ) {
     this.result = this.metrics[this.threshold.metric].report(threshold);
   }
 

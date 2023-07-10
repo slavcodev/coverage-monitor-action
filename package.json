@@ -43,6 +43,7 @@
     "eslint-plugin-github": "^4.3.7",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-jest": "^27.0.4",
+    "eslint-plugin-prettier": "^5.0.0-alpha.2",
     "jest": "^27.5.1",
     "prettier": "^3.0.0",
     "ts-jest": "^27.1.3",

@@ -3,7 +3,11 @@ import MetricLevel from './MetricLevel';
 import MetricType from './MetricType';
 
 export default class Threshold {
-  constructor(readonly metric: MetricType, readonly alert: Bips, readonly warning: Bips) {}
+  constructor(
+    readonly metric: MetricType,
+    readonly alert: Bips,
+    readonly warning: Bips,
+  ) {}
 
   calc(rate: Bips): MetricLevel {
     if (rate < this.alert) {
