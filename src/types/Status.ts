@@ -6,7 +6,11 @@ export default class Status {
   readonly state: StatusState;
   readonly description: string;
 
-  constructor({level, rate, metric}: ReportResult, readonly context: string, readonly target_url: string) {
+  constructor(
+    {level, rate, metric}: ReportResult,
+    readonly context: string,
+    readonly target_url: string,
+  ) {
     if (level === MetricLevel.Red) {
       this.state = StatusState.Failure;
       this.description = `Error: Too low ${metric} coverage - ${rate / 100}%`;
