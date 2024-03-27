@@ -18,6 +18,12 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      pull-requests: write
+      statuses: write
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,19 +47,17 @@ jobs:
 
       - run: npm run lint
 
-      - if: github.event_name == 'pull_request' && ! contains(github.event.pull_request.user.login, 'dependabot[bot]')
-        name: Monitor coverage
-        id: coverage-monitor-clover
+      - id: coverage-monitor-clover
         uses: ./
+        name: "Run slavcodev/coverage-monitor-action@v1#coverage-monitor-clover"
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           coverage_path: ".coverage/clover.xml"
           comment_context: "Coverage from clover"
 
-      - if: github.event_name == 'pull_request' && ! contains(github.event.pull_request.user.login, 'dependabot[bot]')
-        name: Monitor coverage
-        id: coverage-monitor-json
+      - id: coverage-monitor-json
         uses: ./
+        name: "Run slavcodev/coverage-monitor-action@v1#coverage-monitor-json"
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           coverage_path: ".coverage/coverage-summary.json"
