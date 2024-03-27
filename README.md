@@ -52,8 +52,14 @@ on: [pull_request]
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    permissions:
+        contents: read
+        pull-requests: write
+        statuses: write
+
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
 
       - name: Test
         run: npm test
@@ -70,27 +76,25 @@ jobs:
 
 ### Permissions for the `GITHUB_TOKEN`
 
-The secret `GITHUB_TOKEN` is granted with some permissions, and in some cases the action may fail to post the comment or the check status,
-for example on `Dependabot` pull-requests. You can follow instructions from [Using the GITHUB_TOKEN in a workflow guid](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
-how to set up permissions.
+The action requires access to certain resources, thus requires the secret `GITHUB_TOKEN` with certain permissions.
 
-You also can work around the issue with using the action with conditions, for example:
+The minimum required permissions includes the following (without considering the other steps of your job):
 
 ~~~yaml
-name: Tests
-on: [pull_request]
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Monitor coverage
-        if: ! contains(github.event.pull_request.user.login, 'dependabot[bot]')
-        uses: slavcodev/coverage-monitor-action@v1
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          coverage_path: "logs/clover.xml"
+permissions:
+    # Access to your repository.
+    contents: read
+    # Access to pull request. The `write` access if you the `comment` is enabled with the action, otherwise can be `read`. 
+    pull-requests: write
+    # Access to pull request statuses. The `write` access if you the `check` is enabled with the action, otherwise can be `read`.
+    statuses: write
 ~~~
+
+Refer to the documentation on settings at the following URLs:
+* [Automatic Token Authentication - GitHub Docs](https://docs.github.com/en/actions/security-guides/automatic-token-authentication#using-the-github_token-in-a-workflow)
+* [Assigning Permissions to Jobs - GitHub Docs](https://docs.github.com/en/actions/using-jobs/assigning-permissions-to-jobs)
+* [Permissions required for GitHub Apps - GitHub Docs](https://docs.github.com/en/rest/authentication/permissions-required-for-github-apps)
 
 ## Preview
 
