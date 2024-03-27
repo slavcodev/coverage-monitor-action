@@ -85,9 +85,11 @@ The minimum required permissions includes the following (without considering the
 permissions:
     # Access to your repository.
     contents: read
-    # Access to pull request. The `write` access if you the `comment` is enabled with the action, otherwise can be `read`. 
+    # Access to pull request. The `write` access if you the `comment` is enabled
+    # within the action, otherwise can be `read`. 
     pull-requests: write
-    # Access to pull request statuses. The `write` access if you the `check` is enabled with the action, otherwise can be `read`.
+    # Access to pull request statuses. The `write` access if you the `check` is enabled
+    # within the action, otherwise can be `read`.
     statuses: write
 ~~~
 
