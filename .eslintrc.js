@@ -41,7 +41,6 @@ module.exports = {
         allowExpressions: true,
       },
     ],
-    '@typescript-eslint/func-call-spacing': ['error', 'never'],
     '@typescript-eslint/no-array-constructor': 'error',
     '@typescript-eslint/no-empty-interface': 'error',
     '@typescript-eslint/no-explicit-any': 'error',
@@ -63,8 +62,6 @@ module.exports = {
     '@typescript-eslint/require-array-sort-compare': 'error',
     '@typescript-eslint/restrict-plus-operands': 'error',
     semi: 'off',
-    '@typescript-eslint/semi': ['error', 'always'],
-    '@typescript-eslint/type-annotation-spacing': 'error',
     '@typescript-eslint/unbound-method': 'error',
     'prettier/prettier': [
       'error',
