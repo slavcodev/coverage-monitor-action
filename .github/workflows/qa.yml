@@ -27,7 +27,7 @@ jobs:
 
       - run: npm ci
 
-      - run: npm run build
+      - run: npm run package
 
       - name: Compare the expected and actual dist/ directories
         id: diff
