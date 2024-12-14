@@ -2,11 +2,11 @@ import CoverageItem from './CoverageItem';
 import MetricCollection from './MetricCollection';
 import xml2js from 'xml2js';
 
-type XmlNode = {
+interface XmlNode {
   attributes: Record<string, string | number | boolean>;
   children: Record<string, XmlNode[]>;
   content: string;
-};
+}
 
 export default class XmlParser {
   #parser: xml2js.Parser;
