@@ -18,6 +18,19 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
+## [1.10.0] 2026-08-11
+
+### Changed
+ 
+- Upgraded to node v24.
+- Updated dependencies.
+
+## [1.10.0] 2024-10-10
+
+### Changed
+ 
+- Updated dependencies.
+
 ## [1.9.0] 2024-01-31
 
 ### Changed
