@@ -1,6 +1,5 @@
 import jest from "eslint-plugin-jest";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
-import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
 import eslintJs from "@eslint/js";
 import eslintTs from 'typescript-eslint';
@@ -9,8 +8,6 @@ import github from 'eslint-plugin-github';
 
 const languageOptions = {
     globals: {
-        ...globals.node,
-        ...globals.jest,
         ...jest.environments.globals.globals,
     },
     ecmaVersion: 2023,
