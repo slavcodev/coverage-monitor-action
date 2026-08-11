@@ -2,20 +2,10 @@ import jest from "eslint-plugin-jest";
 import typescriptEslint from "@typescript-eslint/eslint-plugin";
 import globals from "globals";
 import tsParser from "@typescript-eslint/parser";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
-import { FlatCompat } from "@eslint/eslintrc";
 import eslintJs from "@eslint/js";
 import eslintTs from 'typescript-eslint';
 import importPlugin from 'eslint-plugin-import';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-    baseDirectory: __dirname,
-    recommendedConfig: eslintJs.configs.recommended,
-    allConfig: eslintJs.configs.all
-});
+import github from 'eslint-plugin-github';
 
 const languageOptions = {
     globals: {
@@ -119,7 +109,7 @@ const customTypescriptConfig = {
             arrowParens: "always",
         }],
 
-        "filenames/match-regex": "off",
+        "github/filenames-match-regex": "off",
         "no-shadow": "off",
         "@typescript-eslint/no-shadow": ["error"],
     },
@@ -128,7 +118,7 @@ const customTypescriptConfig = {
 export default [
     { ignores: ["**/dist/", "**/node_modules/"] },
     eslintJs.configs.recommended,
-    ...compat.extends("plugin:github/recommended"),
+    github.getFlatConfigs().recommended,
     ...recommendedTypeScriptConfigs,
     customTypescriptConfig,
 ];
