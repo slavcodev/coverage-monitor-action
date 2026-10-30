@@ -18,13 +18,13 @@ Security - in case of vulnerabilities.
 
 _TBD_
 
-## [1.11.0] 2026-10-30
+## [1.12.0] 2026-10-30
 
 ### Changed
 
 - Updated dependencies.
 
-## [1.10.0] 2026-08-11
+## [1.11.0] 2026-08-11
 
 ### Changed
 
