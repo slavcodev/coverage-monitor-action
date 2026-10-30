@@ -307,7 +307,7 @@ describe(`${GitHubAdapter.name}`, () => {
     try {
       expect({...github.loadConfig()}).toStrictEqual(expected);
     } catch (e) {
-      throw new Error(scenario);
+      throw new Error(scenario, {cause: e});
     }
   });
 
@@ -355,15 +355,15 @@ describe(`${GitHubAdapter.name}`, () => {
     },
   ] as {
     scenario: string;
-    request: {};
-    expected: {};
+    request: object;
+    expected: object | undefined;
   }[])('parses webhook request on $scenario', async ({scenario, request, expected}) => {
     expect.hasAssertions();
     const github = new GitHubAdapter(core());
     try {
       expect(github.parseWebhook(request)).toStrictEqual(expected);
     } catch (e) {
-      throw new Error(scenario);
+      throw new Error(scenario, {cause: e});
     }
   });
 
@@ -398,7 +398,7 @@ describe(`${GitHubAdapter.name}`, () => {
     },
   ] as {
     scenario: string;
-    request: {};
+    request: object;
     error: string;
   }[])('fails on parse webhook request on $scenario', async ({scenario, request, error}) => {
     expect.hasAssertions();
@@ -406,7 +406,7 @@ describe(`${GitHubAdapter.name}`, () => {
     try {
       expect(() => github.parseWebhook(request)).toThrow(new Error(error));
     } catch (e) {
-      throw new Error(scenario);
+      throw new Error(scenario, {cause: e});
     }
   });
 });

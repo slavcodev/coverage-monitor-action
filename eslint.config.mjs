@@ -45,7 +45,7 @@ const customTypescriptConfig = {
         parser: tsParser,
         ecmaVersion: 9,
         parserOptions: {
-            project: "./tsconfig.json",
+            project: "./tsconfig.eslint.json",
         },
     },
 
