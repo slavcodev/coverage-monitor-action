@@ -35,11 +35,11 @@
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
-    "@types/node": "^26.2.0",
-    "@types/xml2js": "^0.4.9",
+    "@types/node": "^26.6.6",
+    "@types/xml2js": "^0.4.14",
     "@typescript-eslint/eslint-plugin": "^8.72.1",
     "@typescript-eslint/parser": "^8.72.1",
-    "@vercel/ncc": "^0.44.1",
+    "@vercel/ncc": "^0.45.0",
     "eslint": "^10.13.0",
     "eslint-plugin-github": "^6.1.2",
     "eslint-plugin-import": "^2.32.0",
@@ -48,7 +48,7 @@
     "jest": "^30.5.2",
     "prettier": "^3.0.0",
     "ts-jest": "^29.4.15",
-    "typescript": "^5.3.3",
+    "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.1"
   },
   "overrides": {
