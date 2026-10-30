@@ -92,7 +92,7 @@ export default class GitHubAdapter {
     });
   }
 
-  parseWebhook(request: GitHubWebhook): GitHubPullRequest | undefined {
+  parseWebhook(request: Pick<GitHubWebhook, 'payload'>): GitHubPullRequest | undefined {
     const {payload} = request || {};
 
     if (!payload) {

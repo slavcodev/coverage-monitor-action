@@ -64,18 +64,18 @@ export default class GitHubClientAdapter {
       issue_number: prNumber,
     });
 
-    return existingComments.filter(({body}) => body.startsWith(commentHeader));
+    return existingComments.filter(({body}) => body?.startsWith(commentHeader));
   }
 
   async #insertComment({prNumber, body}: {prNumber: number; body: string}): Promise<void> {
     await this.#client.issues.createComment({...this.#context.repo, issue_number: prNumber, body});
   }
 
-  async #updateComment({body, commentId}: {body: string; commentId: string}): Promise<void> {
+  async #updateComment({body, commentId}: {body: string; commentId: number}): Promise<void> {
     await this.#client.issues.updateComment({...this.#context.repo, comment_id: commentId, body});
   }
 
-  async #deleteComments({comments}: {comments: {id: string}[]}): Promise<void> {
+  async #deleteComments({comments}: {comments: {id: number}[]}): Promise<void> {
     await Promise.all(
       comments.map(async ({id}) => this.#client.issues.deleteComment({...this.#context.repo, comment_id: id})),
     );

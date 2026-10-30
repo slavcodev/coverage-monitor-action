@@ -4,8 +4,6 @@ import App from './types/App';
 
 (async function (): Promise<void> {
   try {
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-ignore
     const app = new App(core, github);
     await app.run();
   } catch (error) {
