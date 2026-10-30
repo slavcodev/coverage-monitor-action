@@ -3,7 +3,9 @@
     // Specify ECMAScript target version: 'ES3' (default), 'ES5', 'ES2015', 'ES2016', 'ES2017', 'ES2018', 'ES2019' or 'ESNEXT'.
     "target": "es2022",
     // Specify module code generation: 'none', 'commonjs', 'amd', 'system', 'umd', 'es2015', or 'ESNext'.
-    "module": "commonjs",
+    "module": "esnext",
+    // Resolve modules the way a bundler (ncc) does, honoring package.json "exports".
+    "moduleResolution": "bundler",
     // Redirect output structure to the directory.
     "outDir": "./lib",
     // Specify the root directory of input files. Use to control the output directory structure with --outDir.
@@ -16,9 +18,7 @@
     // Implies 'allowSyntheticDefaultImports'.
     "esModuleInterop": true,
     // Global type packages to include (TypeScript 6+ no longer loads all @types/* automatically).
-    "types": ["node", "jest"],
-    // Skip type checking of declaration files (@actions/github typings import non-exported @octokit/core paths).
-    "skipLibCheck": true
+    "types": ["node", "jest"]
   },
   "exclude": [
     "node_modules",
