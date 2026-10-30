@@ -19,6 +19,20 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
+    strategy:
+      matrix:
+        # 24.x is the action runtime (`runs.using` in action.yml), 26.x is the tooling version.
+        node-version: [24.x, 26.x]
+        coverage-monitor: [true, false]
+        include:
+          -
+            node-version: 24.x
+            coverage-monitor: true
+          -
+            node-version: 26.x
+            coverage-monitor: false
+
+
     permissions:
       contents: read
       pull-requests: write
@@ -30,7 +44,7 @@ jobs:
 
       - uses: actions/setup-node@v7
         with:
-          node-version: 24.x
+          node-version: ${{ matrix.node-version }}
 
       - uses: actions/cache@v6
         id: cache
@@ -48,6 +62,7 @@ jobs:
       - run: npm run lint
 
       - id: coverage-monitor-clover
+        if: matrix.coverage-monitor == true
         uses: ./
         name: "Run slavcodev/coverage-monitor-action@v1#coverage-monitor-clover"
         with:
@@ -56,6 +71,7 @@ jobs:
           comment_context: "Coverage from clover"
 
       - id: coverage-monitor-json
+        if: matrix.coverage-monitor == true
         uses: ./
         name: "Run slavcodev/coverage-monitor-action@v1#coverage-monitor-json"
         with:
